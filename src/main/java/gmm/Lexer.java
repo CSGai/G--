@@ -69,7 +69,7 @@ class Lexer {
             case '>': addToken(match('=') ? GREATER_EQUAL : GREATER); break;
             // assignment
             case '<': addToken(match('=') ? LESS_EQUAL : match('-')? LEFT_ARROW : LESS); break;
-            case '-': addToken(match('>') ? LEFT_ARROW : MINUS); break;
+            case '-': addToken(match('>') ? RIGHT_ARROW : MINUS); break;
             // math
             case '*': addToken(STAR); break;
             case '+': addToken(PLUS); break;

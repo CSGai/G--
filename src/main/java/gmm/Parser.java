@@ -46,7 +46,7 @@ class Parser {
     }
     private Stmt ifStatement() {
         Expr condition = expression();
-        consume(RIGHT_ARROW, "Expect -> after condition");
+        consume(RIGHT_ARROW, "Expect '->' after condition");
         Stmt thenBranch = statement();
 
         Stmt elseBranch = null;
