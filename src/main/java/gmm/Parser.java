@@ -39,10 +39,26 @@ class Parser {
 
     }
     private Stmt statement() {
+        if (match(FOR)) return forStatement();
+        if (match(WHILE)) return whileStatement();
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
+    }
+    private Stmt forStatement() {
+        Stmt initilizer;
+        if (match(VAR)) initilizer = varDeclaration();
+        else initilizer = expressionStatement();
+
+        Stmt endCondition = null;
+        if ()
+    }
+    private Stmt whileStatement() {
+        Expr condition = expression();
+        consume(RIGHT_ARROW, "Expect '->' after condition");
+        Stmt body = statement();
+        return new Stmt.While(condition, body);
     }
     private Stmt ifStatement() {
         Expr condition = expression();

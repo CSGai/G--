@@ -16,8 +16,10 @@ mish scopeTest <- "scope1";
     // scope test
     hadpes scopeTest;
 
-    eim test == blarg oh test == 5 -> {
+    eim test == blarg oh test != 5 -> {
         hadpes "if and or WORKS";
+    } acheret {
+        hadpes "else WORKS";
     }
 }
 

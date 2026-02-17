@@ -34,11 +34,14 @@ program    -> declaration* EOF ;
 declaration-> varDecl | statement ;
 varDecl    -> "mish" IDENTIFIER ( "<-" expression )? ";" ;
 
-statement  -> exprStmt | printStmt | block | ifStmt ;
+statement  -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | forEachStmt;
 block      -> "{" declaration* "}" ;
 expression -> assignment ;
 assignment -> IDENTIFIER "<-" assignment | equality ;
 
-ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
 exprStmt   -> expression ";" ;
+ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
+whileStmt  -> "bezman" expression -> statement ;
+forStmt    -> "leh" ( varDecl | exprStmt | " " ) expression? " " expression? -> statement ;
+forEachStmt-> "lehchol"
 printStmt  -> "hadpes" expression ";" ;

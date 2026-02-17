@@ -130,6 +130,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
     @Override
+    public Void visitWhileStmt(Stmt.While stmt) {
+        while (Truthful(eval(stmt.condition))) execute(stmt.body);
+        return null;
+    }
+    @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
         executeBlock(stmt.statements, new Enviroment(enviroment));
         return null;

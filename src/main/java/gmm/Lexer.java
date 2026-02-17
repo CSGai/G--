@@ -28,11 +28,11 @@ class Lexer {
         keywords.put("kita", CLASS);
         keywords.put("zeh", THIS);
         keywords.put("eim", IF);
-        keywords.put("aheret", ELSE);
+        keywords.put("acheret", ELSE);
         keywords.put("lo-nachon", FALSE);
         keywords.put("nachon", TRUE);
         keywords.put("zilch", NULL);
-        keywords.put("phunktsia", FUNCTION);
+        keywords.put("peola", FUNCTION);
         keywords.put("hadpes", PRINT);
         keywords.put("hachzer", RETURN);
         keywords.put("super", SUPER);
@@ -69,10 +69,10 @@ class Lexer {
             case '>': addToken(match('=') ? GREATER_EQUAL : GREATER); break;
             // assignment
             case '<': addToken(match('=') ? LESS_EQUAL : match('-')? LEFT_ARROW : LESS); break;
-            case '-': addToken(match('>') ? RIGHT_ARROW : MINUS); break;
+            case '-': addToken(match('>') ? RIGHT_ARROW : match('-') ? MINUSMINUS : MINUS); break;
             // math
             case '*': addToken(STAR); break;
-            case '+': addToken(PLUS); break;
+            case '+': addToken(match('+') ? PLUSPLUS : PLUS); break;
             // special handling for comments
             case '/':
                 if (match('/')) {
