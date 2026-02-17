@@ -10,6 +10,7 @@ abstract class Expr {
     R visitLiteralExpr(Literal expr);
     R visitUnaryExpr(Unary expr);
     R visitTernaryExpr(Ternary expr);
+    R visitLogicalExpr(Logical expr);
     R visitVariableExpr(Variable expr);
   }
   static class Assign extends Expr {
@@ -95,6 +96,22 @@ abstract class Expr {
     final Expr condition;
     final Expr thenBranch;
     final Expr elseBranch;
+  }
+  static class Logical extends Expr {
+    Logical(Expr left, Token operator, Expr right) {
+      this.left = left;
+      this.operator = operator;
+      this.right = right;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitLogicalExpr(this);
+    }
+
+    final Expr left;
+    final Token operator;
+    final Expr right;
   }
   static class Variable extends Expr {
     Variable(Token name) {

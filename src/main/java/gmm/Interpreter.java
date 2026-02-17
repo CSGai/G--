@@ -46,6 +46,15 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return otherwise;
     }
     @Override
+    public Object visitLogicalExpr(Expr.Logical expr) {
+        Object left = eval(expr.left);
+        return switch (expr.operator.type) {
+            case OR -> Truthful(left) ? left : eval(expr.right);
+            case AND -> !Truthful(left) ? left : eval(expr.right);
+            default -> null;
+        };
+    }
+    @Override
     public Object visitVariableExpr(Expr.Variable expr) {
         return enviroment.get(expr.name);
     }

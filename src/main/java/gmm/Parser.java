@@ -97,7 +97,7 @@ class Parser {
         return lExpr;
     }
     private Expr assignment() {
-        Expr expr = ternary();
+        Expr expr = checkMissingLHO(this::or, LEFT_ARROW);
 
         if (match(LEFT_ARROW)) {
             Token assignSymbol = previous();
@@ -108,6 +108,26 @@ class Parser {
                 return new Expr.Assign(name, value);
             }
             error(assignSymbol, "Invalid assignment target.");
+        }
+        return expr;
+    }
+    private Expr or() {
+        Expr expr = checkMissingLHO(this::and, OR);
+
+        if (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+    private Expr and() {
+        Expr expr = checkMissingLHO(this::ternary, AND);
+
+        if (match(AND)) {
+            Token operator = previous();
+            Expr right = ternary();
+            expr = new Expr.Logical(expr, operator, right);
         }
         return expr;
     }
