@@ -38,6 +38,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         };
     }
     @Override
+    public Object visitPostfixExpr(Expr.Postfix expr) {
+        Object left = eval(expr.left);
+        return switch (expr.operator.type) {
+            case MINUSMINUS -> {
+                checkNumberOperand(expr.operator, left);
+                yield (double) left - 1;
+            }
+            case PLUSPLUS -> (double) left + 1;
+            default -> null;
+        };
+    }
+    @Override
     public Object visitTernaryExpr(Expr.Ternary expr) {
         Object condition = eval(expr.condition);
         Object then = eval(expr.thenBranch);

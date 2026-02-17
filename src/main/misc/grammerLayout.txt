@@ -25,7 +25,8 @@ equality   -> comparison ( ( "!=" | "==" ) comparison )* ; EXPR, (TOKEN, EXPR)..
 comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ; EXPR, (TOKEN, EXPR)...
 term       -> factor ( ( "-" | "+" ) factor )* ; EXPR, (TOKEN, EXPR)...
 factor     -> unary ( ( "/" | "*" ) unary )* ; EXPR, (TOKEN, EXPR)...
-unary      -> ( "!" | "-" ) unary | primary ; TOKEN, EXPR
+unary      -> ( "!" | "-" ) unary | postfix ; TOKEN, EXPR
+postfix    -> primary ("++"|"--") ; EXPR, TOKEN
 primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER ; EXPR
 
 # top level grammer

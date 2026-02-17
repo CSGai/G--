@@ -21,6 +21,7 @@ mish scopeTest <- "scope1";
     } acheret {
         hadpes "else WORKS";
     }
+    hadpes test--;
 }
 
 // scope test2

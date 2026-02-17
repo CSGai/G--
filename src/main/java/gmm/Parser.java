@@ -48,11 +48,13 @@ class Parser {
     }
     private Stmt forStatement() {
         Stmt initilizer;
-        if (match(VAR)) initilizer = varDeclaration();
+        if (match(SEMICOLON)) initilizer = null;
+        else if (match(VAR)) initilizer = varDeclaration();
         else initilizer = expressionStatement();
 
         Stmt endCondition = null;
-        if ()
+//        if (!match(VAR))
+        return null;
     }
     private Stmt whileStatement() {
         Expr condition = expression();
@@ -203,13 +205,20 @@ class Parser {
         return expr;
     }
     private Expr unary() {
-        TokenType[] ops = {MINUS, BANG};
-        if (match(ops)) {
+        if (match(MINUS, BANG)) {
             Token operator = previous();
             Expr expr = unary();
             return new Expr.Unary(operator, expr);
         }
-        return primary();
+        return postfix();
+    }
+    private Expr postfix() {
+        Expr expr = primary();
+        if (match(MINUSMINUS, PLUSPLUS)) {
+            Token operator = previous();
+            return new Expr.Postfix(expr, operator);
+        }
+        return expr;
     }
     private Expr primary() {
         Token token = peek();

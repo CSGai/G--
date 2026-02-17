@@ -9,6 +9,7 @@ abstract class Expr {
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitUnaryExpr(Unary expr);
+    R visitPostfixExpr(Postfix expr);
     R visitTernaryExpr(Ternary expr);
     R visitLogicalExpr(Logical expr);
     R visitVariableExpr(Variable expr);
@@ -80,6 +81,20 @@ abstract class Expr {
 
     final Token operator;
     final Expr right;
+  }
+  static class Postfix extends Expr {
+    Postfix(Expr left, Token operator) {
+      this.left = left;
+      this.operator = operator;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitPostfixExpr(this);
+    }
+
+    final Expr left;
+    final Token operator;
   }
   static class Ternary extends Expr {
     Ternary(Expr condition, Expr thenBranch, Expr elseBranch) {
