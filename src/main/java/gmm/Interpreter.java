@@ -103,16 +103,26 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             default: return null;
         }
     }
-    @Override
-    public Void visitBlockStmt(Stmt.Block stmt) {
-        executeBlock(stmt.statements, new Enviroment(enviroment));
-        return null;
-    }
 
     // Statement visitors
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         eval(stmt.expression);
+        return null;
+    }
+    @Override
+    public Void visitIfStmt(Stmt.If stmt) {
+        if (Truthful(eval(stmt.condition))) {
+            execute(stmt.thenBranch);
+        }
+        else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
+        return null;
+    }
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt) {
+        executeBlock(stmt.statements, new Enviroment(enviroment));
         return null;
     }
     @Override

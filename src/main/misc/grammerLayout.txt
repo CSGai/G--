@@ -32,10 +32,11 @@ program    -> declaration* EOF ;
 declaration-> varDecl | statement ;
 varDecl    -> "mish" IDENTIFIER ( "<-" expression )? ";" ;
 
-statement  -> exprStmt | printStmt | block ;
+statement  -> exprStmt | printStmt | block | ifStmt ;
 block      -> "{" declaration* "}" ;
 expression -> assignment ;
 assignment -> IDENTIFIER "<-" assignment | equality ;
 
+ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
 exprStmt   -> expression ";" ;
 printStmt  -> "hadpes" expression ";" ;
