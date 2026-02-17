@@ -40,14 +40,20 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitPostfixExpr(Expr.Postfix expr) {
         Object left = eval(expr.left);
-        return switch (expr.operator.type) {
-            case MINUSMINUS -> {
-                checkNumberOperand(expr.operator, left);
-                yield (double) left - 1;
-            }
-            case PLUSPLUS -> (double) left + 1;
-            default -> null;
+        if (!(left instanceof Double)) {
+            throw new RuntimeError(expr.operator, "Operand must be a number.");
+        }
+
+        double result = switch (expr.operator.type) {
+            case PLUS_PLUS -> (double) left + 1;
+            case MINUS_MINUS -> (double) left - 1;
+            default -> throw new RuntimeError(expr.operator, "Ilegal operator for Postfix.");
         };
+
+        if (expr.left instanceof Expr.Variable var) enviroment.assign(var.name, result);
+        else throw new RuntimeError(expr.operator, "Invalid target for postfix operator.");
+
+        return result;
     }
     @Override
     public Object visitTernaryExpr(Expr.Ternary expr) {

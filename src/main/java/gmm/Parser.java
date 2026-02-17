@@ -1,6 +1,7 @@
 package main.java.gmm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -47,14 +48,29 @@ class Parser {
         return expressionStatement();
     }
     private Stmt forStatement() {
-        Stmt initilizer;
-        if (match(SEMICOLON)) initilizer = null;
-        else if (match(VAR)) initilizer = varDeclaration();
-        else initilizer = expressionStatement();
+        Stmt initializer;
+        if (match(SEMICOLON)) initializer = null;
+        else if (match(VAR)) initializer = varDeclaration();
+        else initializer = expressionStatement();
 
-        Stmt endCondition = null;
-//        if (!match(VAR))
-        return null;
+        Expr condition = null;
+        if (!check(SEMICOLON)) condition = expression();
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+
+        Expr increment = null;
+        if (!check(RIGHT_ARROW)) increment = expression();
+        consume(RIGHT_ARROW, "Expected '->' after loop clause");
+        Stmt body = statement();
+
+        if (increment != null) body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+
+        if (condition == null) condition = new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null) body = new Stmt.Block(Arrays.asList(initializer, body));
+
+
+        return body;
     }
     private Stmt whileStatement() {
         Expr condition = expression();
@@ -184,7 +200,7 @@ class Parser {
     }
     private Expr term() {
         TokenType[] ops = {PLUS, MINUS};
-        Expr expr = checkMissingLHO(this::factor, ops);
+        Expr expr = checkMissingLHO(this::factor, PLUS);
 
         while (match(ops)) {
             Token operator = previous();
@@ -214,7 +230,7 @@ class Parser {
     }
     private Expr postfix() {
         Expr expr = primary();
-        if (match(MINUSMINUS, PLUSPLUS)) {
+        if (match(MINUS_MINUS, PLUS_PLUS)) {
             Token operator = previous();
             return new Expr.Postfix(expr, operator);
         }

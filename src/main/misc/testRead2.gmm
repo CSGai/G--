@@ -1,7 +1,33 @@
-mish variable = "test string test2";
+mish scopeTest <- "scope1";
 
-eim (variable == "123") {
-    print("blarg");
-    /*hello*/
+{
+   mish scopeTest <- "scope2";
+   mish test <- 5;
+
+    // assignment test
+    mish blarg <- 20;
+    hadpes blarg;
+    blarg <- 10;
+    hadpes blarg;
+
+    // print test + ternary test
+    hadpes "output: " + (test == 5 ? "10" : "4");
+
+    // scope test
+    hadpes scopeTest;
+
+    eim test == blarg oh test != 5 -> {
+        hadpes "if and or WORKS";
+    } acheret {
+        hadpes "else WORKS";
+    }
+    hadpes test--;
+    hadpes -test;
+
+    leh mish i <- 0; i<5; i++ -> {
+        hadpes i;
+    }
 }
 
+// scope test2
+hadpes scopeTest;

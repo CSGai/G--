@@ -3,7 +3,7 @@ package main.java.gmm;
 public enum TokenType {
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
     COMMA, DOT, MINUS, PLUS, SEMICOLON, COLON, QUESTION,
-    SLASH, STAR, PLUSPLUS, MINUSMINUS,
+    SLASH, STAR, PLUS_PLUS, MINUS_MINUS,
 
     // One or two character tokens.
     BANG, BANG_EQUAL,

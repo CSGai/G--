@@ -24,7 +24,7 @@ class Enviroment {
     }
     Object get(Token name) {
         if (values.containsKey(name.lexeme)) return values.get(name.lexeme);
-        if (enclosingScope!= null) enclosingScope.get(name);
+        if (enclosingScope!= null) return enclosingScope.get(name);
 
         throw new RuntimeError(name, "undefined variable '" + name.lexeme + "'.");
     }

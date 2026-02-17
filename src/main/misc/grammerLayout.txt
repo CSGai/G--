@@ -43,6 +43,6 @@ assignment -> IDENTIFIER "<-" assignment | equality ;
 exprStmt   -> expression ";" ;
 ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
 whileStmt  -> "bezman" expression -> statement ;
-forStmt    -> "leh" ( varDecl | exprStmt | " " ) expression? " " expression? -> statement ;
+forStmt    -> "leh" ( varDecl | exprStmt | ";" ) expression? ";" expression? -> statement ;
 forEachStmt-> "lehchol"
 printStmt  -> "hadpes" expression ";" ;

@@ -68,7 +68,15 @@ public class Gmm {
         List<Stmt> statments = parser.parse();
         System.out.println("Statements:");
         for (Stmt statment : statments) {
-            System.out.println(statment);
+            if (statment instanceof Stmt.Block stmtBlock) {
+                System.out.println("statements of: " + stmtBlock);
+                for (Stmt stmt : stmtBlock.statements) {
+                    System.out.println("\t"+stmt);
+                }
+            }
+            else {
+                System.out.println(statment);
+            }
         }
         System.out.println("...........");
 
