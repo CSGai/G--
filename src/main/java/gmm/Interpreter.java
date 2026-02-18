@@ -4,7 +4,6 @@ import java.util.List;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     Enviroment enviroment = new Enviroment();
-
     void interpret(List<Stmt> statments) {
         try {
             for ( Stmt statement : statments) {
@@ -149,9 +148,20 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
-        while (Truthful(eval(stmt.condition))) execute(stmt.body);
+        try {while (Truthful(eval(stmt.condition))) execute(stmt.body);}
+        catch (BreakException ignored) {}
         return null;
     }
+    @Override
+    public Void visitBreakStmt(Stmt.Break stmt) {
+        throw new BreakException();
+    }
+
+    @Override
+    public Void visitContinueStmt(Stmt.Continue stmt) {
+        throw new ContinueException();
+    }
+
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
         executeBlock(stmt.statements, new Enviroment(enviroment));
@@ -210,11 +220,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         // account for parent enviorment and current
         Enviroment previousEnv = this.enviroment;
 
-        try{
+        try {
             this.enviroment = enviroment;
             // process statements
-            for ( Stmt statement : statements) execute(statement);
+            for ( Stmt statement : statements) {
+                execute(statement);
+            };
         }
+        catch (ContinueException ignored) {}
         finally {
             // flush new current enviroment once block is finished
             this.enviroment = previousEnv;

@@ -39,6 +39,8 @@ class Lexer {
         keywords.put("mish", VAR); //mishtaneh
         keywords.put("bezman", WHILE);
         keywords.put("leh", FOR);
+        keywords.put("shbor", BREAK);
+        keywords.put("daleg", CONTINUE);
     }
 
     public List<Token> scanTokens() {

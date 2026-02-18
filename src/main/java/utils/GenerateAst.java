@@ -26,6 +26,8 @@ public class GenerateAst {
                 "Expression : Expr expression",
                 "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
                 "While      : Expr condition, Stmt body",
+                "Break      : ",
+                "Continue   : ",
                 "Var        : Token name, Expr initializer",
                 "Print      : Expr expression"
         ));
@@ -45,8 +47,10 @@ public class GenerateAst {
 
         // The AST classes.
         for (String type : types) {
-            String className = type.split(":")[0].trim();
-            String fields = type.split(":")[1].trim();
+            String[] split = type.split(":");
+            String className = split[0].trim();
+            String fields = split[1].trim();
+
             defineType(writer, baseName, className, fields);
         }
         writer.println();
@@ -67,15 +71,16 @@ public class GenerateAst {
         writer.println("  }");
     }
 
-    private static void defineType(PrintWriter writer, String baseName, String className, String fieldList) {
+    private static void defineType(PrintWriter writer, String baseName, String className, String fields) {
         writer.println("  static class " + className + " extends " + baseName + " {");
 
         // Constructor.
-        writer.println("    " + className + "(" + fieldList + ") {");
+        writer.println("    " + className + "(" + fields + ") {");
 
         // Store parameters in fields.
-        String[] fields = fieldList.split(", ");
-        for (String field : fields) {
+        String[] fieldList = fields.split(", ");
+        for (String field : fieldList) {
+            if (field.isEmpty()) continue;
             String name = field.split(" ")[1];
             writer.println("      this." + name + " = " + name + ";");
         }
@@ -90,7 +95,8 @@ public class GenerateAst {
 
         // Fields.
         writer.println();
-        for (String field : fields) {
+        for (String field : fieldList) {
+            if (field.isEmpty()) continue;
             writer.println("    final " + field + ";");
         }
 

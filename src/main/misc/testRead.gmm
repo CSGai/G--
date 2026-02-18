@@ -1,3 +1,8 @@
-leh mish i <- 0; i<5; i++ -> {
-    hadpes i;
+leh mish j <- 0; j<5; j++ -> {
+    eim j == 1 -> daleg;
+    leh mish i <- 0; i<5; i++ -> {
+        eim i==1 -> shbor;
+        hadpes i;
+    }
+    eim j==3 -> shbor;
 }
