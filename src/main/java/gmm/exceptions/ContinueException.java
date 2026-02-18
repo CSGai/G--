@@ -1,4 +1,4 @@
-package main.java.gmm;
+package main.java.gmm.exceptions;
 
 public class ContinueException extends RuntimeException {
     public ContinueException() {

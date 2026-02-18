@@ -1,5 +1,8 @@
 package main.java.gmm;
 
+import main.java.gmm.exceptions.BreakException;
+import main.java.gmm.exceptions.ContinueException;
+
 import java.util.List;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
@@ -156,12 +159,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitBreakStmt(Stmt.Break stmt) {
         throw new BreakException();
     }
-
     @Override
     public Void visitContinueStmt(Stmt.Continue stmt) {
         throw new ContinueException();
     }
-
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
         executeBlock(stmt.statements, new Enviroment(enviroment));
