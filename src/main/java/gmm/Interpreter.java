@@ -3,10 +3,40 @@ package main.java.gmm;
 import main.java.gmm.exceptions.BreakException;
 import main.java.gmm.exceptions.ContinueException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    Enviroment enviroment = new Enviroment();
+    final Environment globals = new Environment();
+    private Environment environment = globals;
+
+    Interpreter() {
+        // define built-in functions here
+        globals.define("clock", new GmmCallable() {
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                return (double)System.currentTimeMillis() / 1000.0;
+            }
+            @Override
+            public int arity() {return 0;}
+            @Override
+            public String toString() { return "<nativefn>";}
+        });
+        globals.define("input", new GmmCallable() {
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                Scanner scanner = new Scanner(System.in);
+                return scanner.nextLine();
+            }
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+        });
+    }
+
     void interpret(List<Stmt> statments) {
         try {
             for ( Stmt statement : statments) {
@@ -52,7 +82,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             default -> throw new RuntimeError(expr.operator, "Ilegal operator for Postfix.");
         };
 
-        if (expr.left instanceof Expr.Variable var) enviroment.assign(var.name, result);
+        if (expr.left instanceof Expr.Variable var) environment.assign(var.name, result);
         else throw new RuntimeError(expr.operator, "Invalid target for postfix operator.");
 
         return result;
@@ -76,12 +106,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return enviroment.get(expr.name);
+        return environment.get(expr.name);
     }
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = eval(expr.value);
-        enviroment.assign(expr.name, value);
+        environment.assign(expr.name, value);
         return value;
     }
     @Override
@@ -132,6 +162,23 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             default: return null;
         }
     }
+    @Override
+    public Object visitCallExpr(Expr.Call expr) {
+        Object callee = eval(expr.callee);
+
+        List<Object> arguments = new ArrayList<>();
+        for ( Expr arg : expr.arguments) arguments.add(eval(arg));
+
+        if (!(callee instanceof GmmCallable function)) {
+            throw new RuntimeError(expr.paren,callee.toString() + "not callable.");
+        }
+        if (arguments.size() != function.arity()) {
+            throw new RuntimeError(expr.paren,
+                           "Expected " + function.arity() + " arguments but got " + arguments.size() + ".");
+        }
+
+        return function.call(this, arguments);
+    }
 
     // Statement visitors
     @Override
@@ -165,14 +212,20 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
-        executeBlock(stmt.statements, new Enviroment(enviroment));
+        executeBlock(stmt.statements, new Environment(environment));
         return null;
     }
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
         Object value = null;
         if (stmt.initializer!=null) value = eval(stmt.initializer);
-        enviroment.define(stmt.name.lexeme, value);
+        environment.define(stmt.name.lexeme, value);
+        return null;
+    }
+    @Override
+    public Void visitFunctionStmt(Stmt.Function stmt) {
+        GmmFunction function = new GmmFunction(stmt);
+        environment.define(stmt.name.lexeme, function);
         return null;
     }
     @Override
@@ -217,12 +270,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private void execute(Stmt statement) {
         statement.accept(this);
     }
-    private void executeBlock(List<Stmt> statements, Enviroment enviroment) {
+    public void executeBlock(List<Stmt> statements, Environment environment) {
         // account for parent enviorment and current
-        Enviroment previousEnv = this.enviroment;
+        Environment previousEnv = this.environment;
 
         try {
-            this.enviroment = enviroment;
+            this.environment = environment;
             // process statements
             for ( Stmt statement : statements) {
                 execute(statement);
@@ -230,8 +283,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         catch (ContinueException ignored) {}
         finally {
-            // flush new current enviroment once block is finished
-            this.enviroment = previousEnv;
+            // flush new current environment once block is finished
+            this.environment = previousEnv;
         }
     }
     // misc

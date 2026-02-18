@@ -15,6 +15,27 @@ operator   -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/" ; 
 
 
 # parsing layer grammer
+program    -> declaration* EOF ;
+
+declaration-> funDecl | varDecl | statement ;
+varDecl    -> "mish" IDENTIFIER ( "<-" expression )? ";" ;
+funDecl    -> "kef" function ;
+
+function   -> IDENTIFIER "(" parameters? ")" -> block ;
+parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
+
+statement  -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | forEachStmt;
+expression -> assignment ;
+
+block      -> "{" declaration* "}" ;
+assignment -> IDENTIFIER "<-" assignment | equality ;
+
+exprStmt   -> expression ";" ;
+ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
+whileStmt  -> "bezman" expression -> statement ;
+forStmt    -> "leh" ( varDecl | exprStmt | ";" ) expression? ";" expression? -> statement ;
+printStmt  -> "hadpes" expression ";" ;
+
 expression -> block ; EXPR
 sequance   -> ternary ( ( "," ) ternary )* ; EXPR, (TOKEN, EXPR)...
 assignment -> ( identifier "<-" )? assignment | logic_or ;
@@ -26,23 +47,9 @@ comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ; EXPR, (TOKEN, EXPR)..
 term       -> factor ( ( "-" | "+" ) factor )* ; EXPR, (TOKEN, EXPR)...
 factor     -> unary ( ( "/" | "*" ) unary )* ; EXPR, (TOKEN, EXPR)...
 unary      -> ( "!" | "-" ) unary | postfix ; TOKEN, EXPR
-postfix    -> primary ("++"|"--") ; EXPR, TOKEN
+postfix    -> call ("++"|"--") ; EXPR, TOKEN
+call       -> primary ( "(" arguments? ")" )* ; EXPR, (EXPR...)
 primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER ; EXPR
 
-# top level grammer
-program    -> declaration* EOF ;
+arguments  -> expression ( "," expression )* ; EXPR, ("," EXPR)...
 
-declaration-> varDecl | statement ;
-varDecl    -> "mish" IDENTIFIER ( "<-" expression )? ";" ;
-
-statement  -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | forEachStmt;
-block      -> "{" declaration* "}" ;
-expression -> assignment ;
-assignment -> IDENTIFIER "<-" assignment | equality ;
-
-exprStmt   -> expression ";" ;
-ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
-whileStmt  -> "bezman" expression -> statement ;
-forStmt    -> "leh" ( varDecl | exprStmt | ";" ) expression? ";" expression? -> statement ;
-forEachStmt-> "lehchol"
-printStmt  -> "hadpes" expression ";" ;

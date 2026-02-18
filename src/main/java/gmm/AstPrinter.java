@@ -1,5 +1,7 @@
 package main.java.gmm;
 
+import java.util.Arrays;
+
 class AstPrinter implements Expr.Visitor<String> {
 
     String print(Expr expr) {
@@ -14,6 +16,12 @@ class AstPrinter implements Expr.Visitor<String> {
     public String visitBinaryExpr(Expr.Binary expr) {
         return parenthesize(expr.operator.lexeme, expr.left, expr.right);
     }
+
+    @Override
+    public String visitCallExpr(Expr.Call expr) {
+        return parenthesize(expr.callee.toString(), expr.callee);
+    }
+
     @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
         return parenthesize("group", expr.expression);

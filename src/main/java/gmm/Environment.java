@@ -3,14 +3,14 @@ package main.java.gmm;
 import java.util.HashMap;
 import java.util.Map;
 
-class Enviroment {
-    final Enviroment enclosingScope;
+class Environment {
+    final Environment enclosingScope;
     private final Map<String, Object> values = new HashMap<>();
 
-    Enviroment() {
+    Environment() {
         enclosingScope = null;
     }
-    Enviroment(Enviroment enclosingScope) {
+    Environment(Environment enclosingScope) {
         this.enclosingScope = enclosingScope;
     }
 

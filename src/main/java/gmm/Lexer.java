@@ -32,7 +32,7 @@ class Lexer {
         keywords.put("lo-nachon", FALSE);
         keywords.put("nachon", TRUE);
         keywords.put("zilch", NULL);
-        keywords.put("peola", FUNCTION);
+        keywords.put("kef", FUNCTION);
         keywords.put("hadpes", PRINT);
         keywords.put("hachzer", RETURN);
         keywords.put("super", SUPER);

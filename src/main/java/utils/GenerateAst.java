@@ -13,6 +13,7 @@ public class GenerateAst {
         defineAst(outputDir, "Expr", Arrays.asList(
                 "Assign   : Token name, Expr value",
                 "Binary   : Expr left, Token operator, Expr right",
+                "Call     : Expr callee, Token paren, List<Expr> arguments",
                 "Grouping : Expr expression",
                 "Literal  : Object value",
                 "Unary    : Token operator, Expr right",
@@ -29,6 +30,7 @@ public class GenerateAst {
                 "Break      : ",
                 "Continue   : ",
                 "Var        : Token name, Expr initializer",
+                "Function   : Token name, List<Token> params, List<Stmt> body",
                 "Print      : Expr expression"
         ));
     }

@@ -30,6 +30,7 @@ class Parser {
     // statements
     private Stmt declaration() {
         try {
+            if (match(FUNCTION)) return function("function");
             if (match(VAR)) return varDeclaration();
             return statement();
         }
@@ -49,6 +50,31 @@ class Parser {
         if (match(PRINT)) return printStatement();
         return expressionStatement();
     }
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+    private Stmt.Function function(String kind) {
+        Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        List<Token> params = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (params.size() >= 255) error(peek(), "Can't have more than 255 params.");
+                params.add(consume(IDENTIFIER, "Expected param name."));
+            }
+            while (match(COMMA));
+        }
+        Token paren = consume(RIGHT_PAREN, "Expected ')' after arguments.");
+        // serves no practical reason besides syntax consistency
+        consume(RIGHT_ARROW, "Expected '->' after decleration.");
+
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Stmt> body = block();
+        return new Stmt.Function(name, params, body);
+    }
+
     private Stmt forStatement() {
         Stmt initializer;
         if (match(SEMICOLON)) initializer = null;
@@ -120,11 +146,7 @@ class Parser {
         consume(SEMICOLON, "Expect ; after statement");
         return new Stmt.Print(value);
     }
-    private Stmt expressionStatement() {
-        Expr expr = expression();
-        consume(SEMICOLON, "Expect ';' after expression.");
-        return new Stmt.Expression(expr);
-    }
+
 
     // expressions
     private Expr expression() {
@@ -239,12 +261,35 @@ class Parser {
         return postfix();
     }
     private Expr postfix() {
-        Expr expr = primary();
+        Expr expr = call();
         if (match(MINUS_MINUS, PLUS_PLUS)) {
             Token operator = previous();
             return new Expr.Postfix(expr, operator);
         }
         return expr;
+    }
+    private Expr call() {
+        Expr expr = primary();
+
+        while (true) {
+            if (match(LEFT_PAREN)) expr = finishCall(expr);
+            else break;
+        }
+
+        return expr;
+    }
+    private Expr finishCall(Expr callee) {
+        List<Expr> arguments = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (arguments.size() >= 255) error(peek(), "Can't have more than 255 arguments.");
+                arguments.add(assignment());
+            }
+            while (match(COMMA));
+        }
+        Token paren = consume(RIGHT_PAREN,"Expected ')' after arguments.");
+
+        return new Expr.Call(callee, paren, arguments);
     }
     private Expr primary() {
         Token token = peek();
