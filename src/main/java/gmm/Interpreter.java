@@ -1,7 +1,8 @@
 package main.java.gmm;
 
-import main.java.gmm.exceptions.BreakException;
-import main.java.gmm.exceptions.ContinueException;
+import main.java.gmm.exceptions.Break;
+import main.java.gmm.exceptions.Continue;
+import main.java.gmm.exceptions.Return;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         catch (RuntimeError error) {
             Gmm.runtimeError(error);
+        }
+        catch (Break breakException) {
+            Gmm.error(breakException.self, "break located out of loop.");
+        }
+        catch (Continue continueException) {
+            Gmm.error(continueException.self, "continue located out of loop.");
         }
     }
 
@@ -199,16 +206,23 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
         try {while (Truthful(eval(stmt.condition))) execute(stmt.body);}
-        catch (BreakException ignored) {}
+        catch (Break ignored) {}
         return null;
     }
     @Override
     public Void visitBreakStmt(Stmt.Break stmt) {
-        throw new BreakException();
+        throw new Break(stmt.self);
     }
     @Override
     public Void visitContinueStmt(Stmt.Continue stmt) {
-        throw new ContinueException();
+        throw new Continue(stmt.self);
+    }
+    @Override
+    public Void visitReturnStmt(Stmt.Return stmt) {
+        Object value = null;
+        if (stmt.value != null) value = eval(stmt.value);
+
+        throw new Return(value);
     }
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
@@ -281,7 +295,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 execute(statement);
             };
         }
-        catch (ContinueException ignored) {}
+        catch (Continue ignored) {}
         finally {
             // flush new current environment once block is finished
             this.environment = previousEnv;

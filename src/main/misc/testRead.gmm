@@ -2,7 +2,7 @@ mish a <- 1;
 mish b <- 2;
 
 kef test(a, b) -> {
-    hadpes a+b;
+    hachzer a+b;
 }
 
-test(a, b);
+hadpes test(a, b);

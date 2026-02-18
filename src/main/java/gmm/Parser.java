@@ -42,6 +42,7 @@ class Parser {
     }
     private Stmt statement() {
         if (match(FOR)) return forStatement();
+        if (match(RETURN)) return returnStatement();
         if (match(WHILE)) return whileStatement();
         if (match(IF)) return ifStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
@@ -74,7 +75,15 @@ class Parser {
         List<Stmt> body = block();
         return new Stmt.Function(name, params, body);
     }
+    private Stmt returnStatement() {
+        Token keyword = previous();
 
+        Expr value = null;
+        if(!check(SEMICOLON)) value = expression();
+        consume(SEMICOLON, "Expected ';' after return value.");
+
+        return new Stmt.Return(keyword, value);
+    }
     private Stmt forStatement() {
         Stmt initializer;
         if (match(SEMICOLON)) initializer = null;
@@ -107,12 +116,14 @@ class Parser {
         return new Stmt.While(condition, body);
     }
     private Stmt breakStatement() {
+        Token self = previous();
         consume(SEMICOLON, "Expected ';' after break statement");
-        return new Stmt.Break();
+        return new Stmt.Break(self);
     }
     private Stmt continueStatement() {
+        Token self = previous();
         consume(SEMICOLON, "Expected ';' after break statement");
-        return new Stmt.Continue();
+        return new Stmt.Continue(self);
     }
     private Stmt ifStatement() {
         Expr condition = expression();

@@ -1,5 +1,6 @@
 package main.java.gmm;
 
+import main.java.gmm.exceptions.Return;
 import java.util.List;
 
 class GmmFunction implements GmmCallable {
@@ -14,7 +15,13 @@ class GmmFunction implements GmmCallable {
         for (int i = 0; i < declaration.params.size(); i++) {
             local.define(declaration.params.get(i).lexeme, arguments.get(i));
         }
-        interpreter.executeBlock(declaration.body, local);
+
+        try {
+            interpreter.executeBlock(declaration.body, local);
+        }
+        catch (Return returnValue) {
+            return returnValue.value;
+        }
         return null;
     }
     @Override

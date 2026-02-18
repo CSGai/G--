@@ -24,7 +24,7 @@ funDecl    -> "kef" function ;
 function   -> IDENTIFIER "(" parameters? ")" -> block ;
 parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
 
-statement  -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | forEachStmt;
+statement  -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | forEachStmt | returnStmt;
 expression -> assignment ;
 
 block      -> "{" declaration* "}" ;
@@ -35,6 +35,7 @@ ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
 whileStmt  -> "bezman" expression -> statement ;
 forStmt    -> "leh" ( varDecl | exprStmt | ";" ) expression? ";" expression? -> statement ;
 printStmt  -> "hadpes" expression ";" ;
+returnStmt -> "hachzer" expression? ";" ;
 
 expression -> block ; EXPR
 sequance   -> ternary ( ( "," ) ternary )* ; EXPR, (TOKEN, EXPR)...
