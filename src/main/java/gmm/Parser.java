@@ -57,8 +57,8 @@ class Parser {
         return new Stmt.Expression(expr);
     }
     private Stmt.Function function(String kind) {
-        Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
-        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        Token name = consume(IDENTIFIER, "Expected " + kind + " name.");
+        consume(LEFT_PAREN, "Expected '(' after " + kind + " name.");
         List<Token> params = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
             do {

@@ -48,10 +48,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             Gmm.runtimeError(error);
         }
         catch (Break breakException) {
-            Gmm.error(breakException.self, "break located out of loop.");
+            Gmm.error(breakException.self, "shbor lo yachol lehiot kaiam mechots le loop");
         }
         catch (Continue continueException) {
-            Gmm.error(continueException.self, "continue located out of loop.");
+            Gmm.error(continueException.self, "daleg lo yachol lehiot kaiam mechots le loop");
         }
     }
 
@@ -80,17 +80,17 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitPostfixExpr(Expr.Postfix expr) {
         Object left = eval(expr.left);
         if (!(left instanceof Double)) {
-            throw new RuntimeError(expr.operator, "Operand must be a number.");
+            throw new RuntimeError(expr.operator, "Operand haiav lehiot mispar");
         }
 
         double result = switch (expr.operator.type) {
             case PLUS_PLUS -> (double) left + 1;
             case MINUS_MINUS -> (double) left - 1;
-            default -> throw new RuntimeError(expr.operator, "Ilegal operator for Postfix.");
+            default -> throw new RuntimeError(expr.operator, "mapheil lo hoki le Postfix");
         };
 
         if (expr.left instanceof Expr.Variable var) environment.assign(var.name, result);
-        else throw new RuntimeError(expr.operator, "Invalid target for postfix operator.");
+        else throw new RuntimeError(expr.operator, "matara lo betokeph le postfix mapheil");
 
         return result;
     }
@@ -135,18 +135,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                     right = right instanceof Double ? ((Double) right).intValue() : right;
                     return String.valueOf(left) + right;
                 }
-                throw new RuntimeError(expr.operator,"Operands must be two numbers or two strings.");
+                throw new RuntimeError(expr.operator,"Operands haiav lehiot shney misparim oh shney machrozot");
             case MINUS:
                 if (left instanceof Double l && right instanceof Double r) return l - r;
                 if (left instanceof String l && right instanceof String r) return l.replace(r, "");
-                throw new RuntimeError(expr.operator,"Operands must be two numbers or two strings.");
+                throw new RuntimeError(expr.operator,"Operands haiav lehiot shney misparim oh shney machrozot");
             case STAR:
                 if (left instanceof Double l && right instanceof Double r) return l * r;
                 if (left instanceof String && right instanceof Double) return ((String) left).repeat((int)right);
-                throw new RuntimeError(expr.operator,"Operands must be two numbers or a string and a number.");
+                throw new RuntimeError(expr.operator,"Operands haiav lehiot shney misparim oh machrozet veh mispar");
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
-                if (((Double)right).intValue() == 0) throw new RuntimeError(expr.operator, "can't devide by 0.");
+                if (((Double)right).intValue() == 0) throw new RuntimeError(expr.operator, "ei efshar lehalek be 0");
                 return (double)left / (double)right;
             // comparison
             case LESS: checkNumberOperands(expr.operator, left, right); return (double)left < (double)right;
@@ -177,11 +177,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         for ( Expr arg : expr.arguments) arguments.add(eval(arg));
 
         if (!(callee instanceof GmmCallable function)) {
-            throw new RuntimeError(expr.paren,callee.toString() + "not callable.");
+            throw new RuntimeError(expr.paren,callee.toString() + "lo nitan lekria");
         }
         if (arguments.size() != function.arity()) {
             throw new RuntimeError(expr.paren,
-                           "Expected " + function.arity() + " arguments but got " + arguments.size() + ".");
+                           "Tsipa " + function.arity() + " argumentim aval kibel " + arguments.size() + ".");
         }
 
         return function.call(this, arguments);
@@ -254,11 +254,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // operand checks
     private void checkNumberOperand(Token operator, Object right) {
         if (right instanceof Double) return;
-        throw new RuntimeError(operator, "Operand must be a number.");
+        throw new RuntimeError(operator, "Operand haiav lehiot mispar");
     }
     private void checkNumberOperands(Token operator, Object left, Object right) {
         if (left instanceof Double && right instanceof Double) return;
-        throw new RuntimeError(operator, "Operands must be numbers.");
+        throw new RuntimeError(operator, "Operand haiav lehiot mispar");
     }
 
     // mics checks
