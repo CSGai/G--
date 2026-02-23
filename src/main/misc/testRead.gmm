@@ -1,10 +1,12 @@
 
-kef test(fun) -> {
-    fun(1)
+kef test: a,b -> {
+    hachzer a+b;
 }
 
-test(
+hadpes test(1,2);
+
+/*test(
     kef (a) {
         hadpes a;
     }
-);
+);*/

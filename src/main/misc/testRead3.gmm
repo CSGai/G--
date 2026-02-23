@@ -6,3 +6,7 @@ leh mish j <- 0; j<5; j++ -> {
     }
     eim j==3 -> shbor;
 }
+
+kef test: a, b -> {
+    hadpes a+b;
+}

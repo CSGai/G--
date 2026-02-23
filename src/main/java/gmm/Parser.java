@@ -62,22 +62,24 @@ class Parser {
         return new Stmt.Expression(expr);
     }
     private Stmt.Function function(String kind) {
+
         Token name = consume(IDENTIFIER, "Expected " + kind + " name.");
-        consume(LEFT_PAREN, "Expected '(' after " + kind + " name.");
+
+        consume(COLON, "Expected ':' after " + kind + " name.");
         List<Token> params = new ArrayList<>();
-        if (!check(RIGHT_PAREN)) {
+
+        if (!check(RIGHT_ARROW)) {
             do {
                 if (params.size() >= 255) error(peek(), "Can't have more than 255 params.");
                 params.add(consume(IDENTIFIER, "Expected param name."));
             }
             while (match(COMMA));
         }
-        Token paren = consume(RIGHT_PAREN, "Expected ')' after arguments.");
-        // serves no practical reason besides syntax consistency
-        consume(RIGHT_ARROW, "Expected '->' after decleration.");
+        Token arrow = consume(RIGHT_ARROW, "Expected '->' after arguments.");
 
         consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
         List<Stmt> body = block();
+
         return new Stmt.Function(name, params, body);
     }
     private Stmt returnStatement() {
