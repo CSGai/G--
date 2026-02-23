@@ -1,19 +1,10 @@
+mish f <- kef: x -> hadpes x; ;
 
-kef test: fun -> {
-    fun(1);
+f(5);
+
+
+kef functest: fun -> {
+    fun(5);
 }
 
-
-test(
-    kef (a) {
-        hadpes a;
-    }
-);
-
-/*
-kef test: a, b -> {
-    hadpes a*b;
-}
-
-test(4, 5);
-*/
+functest(kef: x -> hadpes x+5;);

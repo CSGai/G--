@@ -22,7 +22,6 @@ varDecl    -> "mish" IDENTIFIER ( "<-" expression )? ";" ;
 funDecl    -> "kef" function ;
 
 function   -> IDENTIFIER "(" parameters? ")" -> block ;
-parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
 
 statement  -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | forEachStmt | returnStmt;
 expression -> assignment ;
@@ -37,8 +36,8 @@ forStmt    -> "leh" ( varDecl | exprStmt | ";" ) expression? ";" expression? -> 
 printStmt  -> "hadpes" expression ";" ;
 returnStmt -> "hachzer" expression? ";" ;
 
-expression -> block ; EXPR
-sequance   -> ternary ( ( "," ) ternary )* ; EXPR, (TOKEN, EXPR)...
+expression -> sequence ; EXPR
+sequence   -> assignment ( ( "," ) assignment )* ; EXPR, (TOKEN, EXPR)...
 assignment -> ( identifier "<-" )? assignment | logic_or ;
 logic_or   -> logic_and ( "oh" logic_and )* ; EXPR, (TOKEN, EXPR)...
 logic_and  -> ternary ( "veh" ternary )* ; EXPR, (TOKEN, EXPR)...
@@ -50,7 +49,9 @@ factor     -> unary ( ( "/" | "*" ) unary )* ; EXPR, (TOKEN, EXPR)...
 unary      -> ( "!" | "-" ) unary | postfix ; TOKEN, EXPR
 postfix    -> call ("++"|"--") ; EXPR, TOKEN
 call       -> primary ( "(" arguments? ")" )* ; EXPR, (EXPR...)
-primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER ; EXPR
+primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER | lambda ; EXPR
+
+lambda     -> ("kef" ":" parameters? "->" expression)
 
 arguments  -> expression ( "," expression )* ; EXPR, ("," EXPR)...
-
+parameters -> IDENTIFIER ( "," IDENTIFIER )* ;

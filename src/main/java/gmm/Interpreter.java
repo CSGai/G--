@@ -189,6 +189,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         return function.call(this, arguments);
     }
+    @Override
+    public Object visitLambdaExpr(Expr.Lambda expr) {
+        return new GmmLambda(expr, environment);
+    }
 
     // Statement visitors
     @Override
@@ -286,6 +290,19 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     private void execute(Stmt statement) {
         statement.accept(this);
+    }
+    public void execute(Stmt statement, Environment environment) {
+        // account for parent enviorment and current
+        Environment previousEnv = this.environment;
+        try {
+            // process expression in env
+            this.environment = environment;
+            execute(statement);
+        }
+        finally {
+            // flush new current environment once block is finished
+            this.environment = previousEnv;
+        }
     }
     public void executeBlock(List<Stmt> statements, Environment environment) {
         // account for parent enviorment and current

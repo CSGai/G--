@@ -62,7 +62,6 @@ class Parser {
         return new Stmt.Expression(expr);
     }
     private Stmt.Function function(String kind) {
-
         Token name = consume(IDENTIFIER, "Expected " + kind + " name.");
 
         consume(COLON, "Expected ':' after " + kind + " name.");
@@ -318,10 +317,23 @@ class Parser {
             case NULL: advance(); return new Expr.Literal(null);
             case NUMBER, STRING: advance(); return new Expr.Literal(token.literal);
             case IDENTIFIER: advance(); return new Expr.Variable(previous());
+            case FUNCTION:
+                advance();
+                consume(COLON, "Expected ':' after lambda.");
+                List<Token> params = new ArrayList<>();
+                if (!check(RIGHT_ARROW)) {
+                    do {
+                        if (params.size() >= 255) error(peek(), "Can't have more than 255 params.");
+                        params.add(consume(IDENTIFIER, "Expected param name."));
+                    }
+                    while (match(COMMA));
+                }
+                consume(RIGHT_ARROW, "Expected '->' after arguments.");
+                return new Expr.Lambda(params, statement());
             case LEFT_PAREN:
                 advance();
                 Expr expr = expression();
-                consume(RIGHT_PAREN, "Expect ')' after expression");
+                consume(RIGHT_PAREN, "Expected ')' after expression.");
                 return new Expr.Grouping(expr);
             default:
                 throw error(peek(), "Expected expression.");

@@ -7,6 +7,7 @@ public abstract class Expr {
         R visitAssignExpr(Assign expr);
         R visitBinaryExpr(Binary expr);
         R visitCallExpr(Call expr);
+        R visitLambdaExpr(Lambda expr);
         R visitGroupingExpr(Grouping expr);
         R visitLiteralExpr(Literal expr);
         R visitUnaryExpr(Unary expr);
@@ -60,6 +61,20 @@ public abstract class Expr {
         public final Expr callee;
         public final Token paren;
         public final List<Expr> arguments;
+    }
+    public static class Lambda extends Expr {
+        public Lambda(List<Token> params, Stmt body) {
+            this.params = params;
+            this.body = body;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLambdaExpr(this);
+        }
+
+        public final List<Token> params;
+        public final Stmt body;
     }
     public static class Grouping extends Expr {
         public Grouping(Expr expression) {
