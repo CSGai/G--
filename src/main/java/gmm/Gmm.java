@@ -1,5 +1,9 @@
 package main.java.gmm;
 
+import main.java.gmm.constructs.Stmt;
+import main.java.gmm.constructs.Token;
+import main.java.gmm.constructs.TokenType;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -59,7 +63,7 @@ public class Gmm {
         System.out.println("tokens:");
         for (Token token : tokens) {
             System.out.println(token);
-            if (token.type == TokenType.SEMICOLON) System.out.println("");
+            if (token.type == TokenType.SEMICOLON) System.out.println(" ");
         }
         System.out.println("...........");
 

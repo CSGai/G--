@@ -1,12 +1,12 @@
-package main.java.gmm;
+package main.java.gmm.constructs;
 
 public class Token {
-    final TokenType type;
-    final String lexeme;
-    final Object literal;
-    final int line;
+    public final TokenType type;
+    public final String lexeme;
+    public final Object literal;
+    public final int line;
 
-    Token(TokenType type, String lexeme, Object literal, int line) {
+    public Token(TokenType type, String lexeme, Object literal, int line) {
         this.type = type;
         this.line = line;
         this.literal = literal;
@@ -22,7 +22,7 @@ public class Token {
                 line
         );
     }
-    static String raw(String s) {
+    public static String raw(String s) {
         if (s == null) return "null";
         return s
                 .replace("\\", "\\\\")

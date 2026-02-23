@@ -1,8 +1,10 @@
-mish a <- 1;
-mish b <- 2;
 
-kef test(a, b) -> {
-    hachzer a+b;
+kef test(fun) -> {
+    fun(1)
 }
 
-hadpes test(a, b);
+test(
+    kef (a) {
+        hadpes a;
+    }
+);

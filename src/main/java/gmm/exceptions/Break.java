@@ -1,6 +1,6 @@
 package main.java.gmm.exceptions;
 
-import main.java.gmm.Token;
+import main.java.gmm.constructs.Token;
 
 public class Break extends RuntimeException {
     public final Token self;

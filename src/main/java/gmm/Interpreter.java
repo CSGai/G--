@@ -1,5 +1,8 @@
 package main.java.gmm;
 
+import main.java.gmm.constructs.Expr;
+import main.java.gmm.constructs.Stmt;
+import main.java.gmm.constructs.Token;
 import main.java.gmm.exceptions.Break;
 import main.java.gmm.exceptions.Continue;
 import main.java.gmm.exceptions.Return;

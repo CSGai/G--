@@ -1,5 +1,8 @@
 package main.java.gmm;
 
+import main.java.gmm.constructs.Token;
+import main.java.gmm.constructs.TokenType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +10,7 @@ import java.util.Map;
 
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
-import static main.java.gmm.TokenType.*;
+import static main.java.gmm.constructs.TokenType.*;
 
 class Lexer {
     private final String source;
@@ -79,9 +82,13 @@ class Lexer {
             case '/':
                 if (match('/')) {
                     while (peek() != '\n' && !endOfFile()) advance();
-                } else if (match('*')) {
+                }
+                else if (match('*')) {
                     while (peek() != '*' && peekFuture() != '/' && !endOfFile()) advance();
-                } else {
+                    match('*');
+                    match('/');
+                }
+                else {
                     addToken(SLASH);
                 }
                 break;

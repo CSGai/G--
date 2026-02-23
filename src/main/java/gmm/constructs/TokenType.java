@@ -1,4 +1,4 @@
-package main.java.gmm;
+package main.java.gmm.constructs;
 
 public enum TokenType {
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,

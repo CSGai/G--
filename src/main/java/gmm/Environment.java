@@ -1,5 +1,7 @@
 package main.java.gmm;
 
+import main.java.gmm.constructs.Token;
+
 import java.util.HashMap;
 import java.util.Map;
 

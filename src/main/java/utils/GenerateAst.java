@@ -8,7 +8,7 @@ import java.util.List;
 
 public class GenerateAst {
     public static void main(String[] args) throws IOException {
-        String outputDir = "./src/main/java/gmm";
+        String outputDir = "./src/main/java/gmm/constructs";
 
         defineAst(outputDir, "Expr", Arrays.asList(
                 "Assign   : Token name, Expr value",
@@ -40,11 +40,11 @@ public class GenerateAst {
         String path = outputDir + "/" + baseName + ".java";
         PrintWriter writer = new PrintWriter(path, StandardCharsets.UTF_8);
 
-        writer.println("package main.java.gmm;");
+        writer.println("package main.java.gmm.constructs;");
         writer.println();
         writer.println("import java.util.List;");
         writer.println();
-        writer.println("abstract class " + baseName + " {");
+        writer.println("public abstract class " + baseName + " {");
 
         defineVisitor(writer, baseName, types);
 
@@ -57,13 +57,13 @@ public class GenerateAst {
             defineType(writer, baseName, className, fields);
         }
         writer.println();
-        writer.println("  abstract <R> R accept(Visitor<R> visitor);");
+        writer.println("  public abstract <R> R accept(Visitor<R> visitor);");
         writer.println("}");
         writer.close();
     }
 
     private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
-        writer.println("  interface Visitor<R> {");
+        writer.println("  public interface Visitor<R> {");
 
         for (String type : types) {
             String typeName = type.split(":")[0].trim();
@@ -75,10 +75,10 @@ public class GenerateAst {
     }
 
     private static void defineType(PrintWriter writer, String baseName, String className, String fields) {
-        writer.println("  static class " + className + " extends " + baseName + " {");
+        writer.println("  public static class " + className + " extends " + baseName + " {");
 
         // Constructor.
-        writer.println("    " + className + "(" + fields + ") {");
+        writer.println("   public " + className + "(" + fields + ") {");
 
         // Store parameters in fields.
         String[] fieldList = fields.split(", ");
@@ -92,7 +92,7 @@ public class GenerateAst {
         // Visitor pattern.
         writer.println();
         writer.println("    @Override");
-        writer.println("    <R> R accept(Visitor<R> visitor) {");
+        writer.println("    public <R> R accept(Visitor<R> visitor) {");
         writer.println("      return visitor.visit" + className + baseName + "(this);");
         writer.println("    }");
 
@@ -100,7 +100,7 @@ public class GenerateAst {
         writer.println();
         for (String field : fieldList) {
             if (field.isEmpty()) continue;
-            writer.println("    final " + field + ";");
+            writer.println("    public final " + field + ";");
         }
 
         writer.println("  }");

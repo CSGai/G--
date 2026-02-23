@@ -1,11 +1,16 @@
 package main.java.gmm;
 
+import main.java.gmm.constructs.Expr;
+import main.java.gmm.constructs.Stmt;
+import main.java.gmm.constructs.Token;
+import main.java.gmm.constructs.TokenType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static main.java.gmm.TokenType.*;
+import static main.java.gmm.constructs.TokenType.*;
 
 class Parser {
     private static class ParseError extends RuntimeException {}

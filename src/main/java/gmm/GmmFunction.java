@@ -1,11 +1,13 @@
 package main.java.gmm;
 
+import main.java.gmm.constructs.Stmt;
 import main.java.gmm.exceptions.Return;
 import java.util.List;
 
 class GmmFunction implements GmmCallable {
     private final Stmt.Function declaration;
     private final Environment closure;
+
     GmmFunction(Stmt.Function declaration, Environment closure) {
         this.declaration = declaration;
         this.closure = closure;
