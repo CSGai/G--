@@ -238,7 +238,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        GmmFunction function = new GmmFunction(stmt);
+        GmmFunction function = new GmmFunction(stmt, environment);
         environment.define(stmt.name.lexeme, function);
         return null;
     }

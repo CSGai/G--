@@ -5,13 +5,15 @@ import java.util.List;
 
 class GmmFunction implements GmmCallable {
     private final Stmt.Function declaration;
-    GmmFunction(Stmt.Function declaration) {
+    private final Environment closure;
+    GmmFunction(Stmt.Function declaration, Environment closure) {
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        Environment local = new Environment(interpreter.globals);
+        Environment local = new Environment(closure);
         for (int i = 0; i < declaration.params.size(); i++) {
             local.define(declaration.params.get(i).lexeme, arguments.get(i));
         }
