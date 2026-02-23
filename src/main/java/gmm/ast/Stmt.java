@@ -1,4 +1,4 @@
-package main.java.gmm.constructs;
+package main.java.gmm.ast;
 
 import java.util.List;
 

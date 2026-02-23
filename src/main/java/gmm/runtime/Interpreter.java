@@ -1,21 +1,26 @@
-package main.java.gmm;
+package main.java.gmm.runtime;
 
-import main.java.gmm.constructs.Expr;
-import main.java.gmm.constructs.Stmt;
-import main.java.gmm.constructs.Token;
+import main.java.gmm.Gmm;
+import main.java.gmm.ast.Expr;
+import main.java.gmm.ast.Stmt;
+import main.java.gmm.ast.Token;
 import main.java.gmm.exceptions.Break;
 import main.java.gmm.exceptions.Continue;
 import main.java.gmm.exceptions.Return;
+import main.java.gmm.runtime.callables.GmmCallable;
+import main.java.gmm.runtime.callables.GmmFunction;
+import main.java.gmm.runtime.callables.GmmLambda;
+import main.java.gmm.runtime.errors.RuntimeError;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     final Environment globals = new Environment();
     private Environment environment = globals;
 
-    Interpreter() {
+    public Interpreter() {
         // define built-in functions here
         globals.define("clock", new GmmCallable() {
             @Override
@@ -41,7 +46,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         });
     }
 
-    void interpret(List<Stmt> statments) {
+    public void interpret(List<Stmt> statments) {
         try {
             for ( Stmt statement : statments) {
                 execute(statement);

@@ -1,14 +1,16 @@
-package main.java.gmm;
+package main.java.gmm.runtime.callables;
 
-import main.java.gmm.constructs.Stmt;
+import main.java.gmm.runtime.Environment;
+import main.java.gmm.runtime.Interpreter;
+import main.java.gmm.ast.Stmt;
 import main.java.gmm.exceptions.Return;
 import java.util.List;
 
-class GmmFunction implements GmmCallable {
+public class GmmFunction implements GmmCallable {
     private final Stmt.Function declaration;
     private final Environment closure;
 
-    GmmFunction(Stmt.Function declaration, Environment closure) {
+    public GmmFunction(Stmt.Function declaration, Environment closure) {
         this.declaration = declaration;
         this.closure = closure;
     }

@@ -1,28 +1,29 @@
-package main.java.gmm;
+package main.java.gmm.runtime;
 
-import main.java.gmm.constructs.Expr;
-import main.java.gmm.constructs.Stmt;
-import main.java.gmm.constructs.Token;
-import main.java.gmm.constructs.TokenType;
+import main.java.gmm.Gmm;
+import main.java.gmm.ast.Expr;
+import main.java.gmm.ast.Stmt;
+import main.java.gmm.ast.Token;
+import main.java.gmm.ast.TokenType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static main.java.gmm.constructs.TokenType.*;
+import static main.java.gmm.ast.TokenType.*;
 
-class Parser {
+public class Parser {
     private static class ParseError extends RuntimeException {}
 
     final private List<Token> tokens;
     private int current_idx = 0;
 
-    Parser(List<Token> tokens) {
+    public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
-    List<Stmt> parse() {
+    public List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
 
         while (!endOfFile()) {

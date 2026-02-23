@@ -1,7 +1,8 @@
-package main.java.gmm;
+package main.java.gmm.runtime;
 
-import main.java.gmm.constructs.Token;
-import main.java.gmm.constructs.TokenType;
+import main.java.gmm.Gmm;
+import main.java.gmm.ast.Token;
+import main.java.gmm.ast.TokenType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,13 +11,13 @@ import java.util.Map;
 
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
-import static main.java.gmm.constructs.TokenType.*;
+import static main.java.gmm.ast.TokenType.*;
 
-class Lexer {
+public class Lexer {
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
 
-    Lexer(String source) {
+    public Lexer(String source) {
         this.source = source;
     }
 

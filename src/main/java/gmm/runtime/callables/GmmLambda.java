@@ -1,15 +1,17 @@
-package main.java.gmm;
+package main.java.gmm.runtime.callables;
 
-import main.java.gmm.constructs.Expr;
+import main.java.gmm.runtime.Environment;
+import main.java.gmm.runtime.Interpreter;
+import main.java.gmm.ast.Expr;
 import main.java.gmm.exceptions.Return;
 
 import java.util.List;
 
-class GmmLambda implements GmmCallable {
+public class GmmLambda implements GmmCallable {
     private final Expr.Lambda declaration;
     private final Environment closure;
 
-    GmmLambda(Expr.Lambda declaration, Environment closure) {
+    public GmmLambda(Expr.Lambda declaration, Environment closure) {
         this.declaration = declaration;
         this.closure = closure;
     }

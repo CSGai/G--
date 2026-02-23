@@ -1,6 +1,6 @@
 package main.java.gmm.exceptions;
 
-import main.java.gmm.constructs.Token;
+import main.java.gmm.ast.Token;
 
 public class Continue extends RuntimeException {
     public final Token self;

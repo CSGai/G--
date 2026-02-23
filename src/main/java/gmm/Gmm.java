@@ -1,8 +1,12 @@
 package main.java.gmm;
 
-import main.java.gmm.constructs.Stmt;
-import main.java.gmm.constructs.Token;
-import main.java.gmm.constructs.TokenType;
+import main.java.gmm.ast.Stmt;
+import main.java.gmm.ast.Token;
+import main.java.gmm.ast.TokenType;
+import main.java.gmm.runtime.Interpreter;
+import main.java.gmm.runtime.Lexer;
+import main.java.gmm.runtime.Parser;
+import main.java.gmm.runtime.errors.RuntimeError;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -93,10 +97,10 @@ public class Gmm {
 //        System.out.println(new AstPrinter().print(expression));
     }
 
-    static void error(int line, String message) {
+    public static void error(int line, String message) {
         report(line, "", message);
     }
-    static void error(Token token, String message) {
+    public static void error(Token token, String message) {
         if (token.type == TokenType.EOF) report(token.line, " at end", message);
         else report(token.line, token.lexeme, message);
     }
@@ -105,7 +109,7 @@ public class Gmm {
         errorFlag = true;
     }
 
-    static void runtimeError(RuntimeError error) {
+    public static void runtimeError(RuntimeError error) {
         System.err.println(error.getMessage() + "\n[line " + error.token.line + "]");
         hadRuntimeError = true;
     }

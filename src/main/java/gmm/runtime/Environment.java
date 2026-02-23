@@ -1,30 +1,31 @@
-package main.java.gmm;
+package main.java.gmm.runtime;
 
-import main.java.gmm.constructs.Token;
+import main.java.gmm.ast.Token;
+import main.java.gmm.runtime.errors.RuntimeError;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class Environment {
+public class Environment {
     final Environment enclosingScope;
     private final Map<String, Object> values = new HashMap<>();
 
-    Environment() {
+    public Environment() {
         enclosingScope = null;
     }
-    Environment(Environment enclosingScope) {
+    public Environment(Environment enclosingScope) {
         this.enclosingScope = enclosingScope;
     }
 
-    void define(String name, Object value) {values.put(name, value);}
+    public void define(String name, Object value) {values.put(name, value);}
     void undefine(String name, Object value) {values.remove(name, value);}
-    void assign(Token name, Object value) {
+    public void assign(Token name, Object value) {
         if (values.containsKey(name.lexeme)) {values.put(name.lexeme, value); return;}
         if (enclosingScope!=null) {enclosingScope.assign(name, value); return;}
 
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
-    Object get(Token name) {
+    public Object get(Token name) {
         if (values.containsKey(name.lexeme)) return values.get(name.lexeme);
         if (enclosingScope!= null) return enclosingScope.get(name);
 
