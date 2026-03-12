@@ -18,7 +18,6 @@ import java.util.List;
 public class Gmm {
     static boolean errorFlag = false;
     static boolean hadRuntimeError = false;
-
     private static final Interpreter interpreter = new Interpreter();
 
     public static void main(String[] args) throws IOException {
@@ -48,14 +47,12 @@ public class Gmm {
             errorFlag = false;
         }
     }
-
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, StandardCharsets.UTF_8));
         if (errorFlag) System.exit(65);
         if (hadRuntimeError) System.exit(70);
     }
-
     private static void run(String sourceCode) throws RuntimeException {
         if (errorFlag) System.exit(65);
 
@@ -70,8 +67,11 @@ public class Gmm {
         System.out.println("...........");
 
         // Parser
+        AstPrinter ast = new AstPrinter();
         Parser parser = new Parser(tokens);
         List<Stmt> statments = parser.parse();
+
+        // NEED TO REDO FOR MORE CLEAR AND DETAILED PRESENTATION OF AST TREE
         System.out.println("Statements:");
         for (Stmt statment : statments) {
             if (statment instanceof Stmt.Block stmtBlock) {
@@ -85,22 +85,31 @@ public class Gmm {
                     System.out.println("\t" + stmt);
                 }
             } else if (statment instanceof Stmt.Expression stmtExpression) {
-                System.out.println(stmtExpression + " -> " + stmtExpression.expression);
+                System.out.println(stmtExpression + " -> " + stmtExpression.expression + " -> " + ast.print(stmtExpression.expression) );
+
             } else {
                 System.out.println(statment);
             }
         }
         System.out.println("...........");
 
-        // Stop if there was a syntax error.
+        // Stop if there was a syntax/parse error.
         if (errorFlag) return;
+
+        // Resolver (semantic analysis)
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statments);
+
+        // Stop if there was a resolution error.
+        if (errorFlag) return;
+
 
         // Interpreter
         interpreter.interpret(statments);
 
-//        System.out.println(new AstPrinter().print(expression));
     }
 
+    // error handling
     public static void error(int line, String message) {
         report(line, "", message);
     }

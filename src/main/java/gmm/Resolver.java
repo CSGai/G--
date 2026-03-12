@@ -12,6 +12,8 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // binds name to resolve status in a scope, collected into a scope stack
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
+    private enum FunctionType { NONE, FUNCTION, LAMBDA }
+    private FunctionType currentFunction = FunctionType.NONE;
 
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -38,10 +40,10 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Object visitLambdaExpr(Expr.Lambda expr) {
-        if (expr.body instanceof Stmt.Block body) resolveFunction(expr.params, body.statements);
-        else resolveFunction(expr.params, List.of(expr.body));
+        resolveFunction(expr, FunctionType.LAMBDA);
         return null;
     }
+
     @Override
     public Object visitGroupingExpr(Expr.Grouping expr) {
         resolve(expr.expression);
@@ -120,9 +122,9 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
-        if (stmt.value != null) {
-            resolve(stmt.value);
-        }
+        if (currentFunction == FunctionType.NONE) Gmm.error(stmt.keyword, "Can't return from top-level code.");
+        if (stmt.value != null) resolve(stmt.value);
+
         return null;
     }
     @Override
@@ -137,7 +139,8 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         declare(stmt.name);
         define(stmt.name);
 
-        resolveFunction(stmt.params, stmt.body);
+        resolveFunction(stmt, FunctionType.FUNCTION);
+//        resolveFunction(stmt.params, stmt.body);
         return null;
     }
     @Override
@@ -148,7 +151,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
 
     // visitor helpers
-    private void resolve(List<Stmt> statements) {
+    void resolve(List<Stmt> statements) {
         for (Stmt stmt : statements) resolve(stmt);
     }
     private void resolve(Stmt stmt) {
@@ -166,7 +169,16 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         }
     }
-    private void resolveFunction(List<Token> params, List<Stmt> body) {
+    private void resolveFunction(Stmt.Function function, FunctionType type) {
+        resolveFunction(function.params, function.body, type);
+    }
+    private void resolveFunction(Expr.Lambda lambda, FunctionType type) {
+        if (lambda.body instanceof Stmt.Block body) resolveFunction(lambda.params, body.statements, type);
+        else resolveFunction(lambda.params, List.of(lambda.body), type);
+    }
+    private void resolveFunction(List<Token> params, List<Stmt> body, FunctionType type) {
+        FunctionType enclosingFunction = currentFunction;
+        currentFunction = type;
         startScope();
         for (Token param : params) {
             declare(param);
@@ -174,6 +186,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         resolve(body);
         endScope();
+        currentFunction = enclosingFunction;
     }
 
     // scope helpers
@@ -186,6 +199,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private void declare(Token name) {
         if (scopes.isEmpty()) return;
         Map<String, Boolean> scope = scopes.peek();
+        if (scope.containsKey(name.lexeme)) Gmm.error(name, "Variable already exists in scope.");
         scope.put(name.lexeme, false);
     }
     private void define(Token name) {
@@ -194,3 +208,4 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
 }
+
