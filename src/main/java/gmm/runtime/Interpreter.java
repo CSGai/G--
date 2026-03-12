@@ -125,7 +125,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = eval(expr.value);
-        environment.assign(expr.name, value);
+        assignVariable(expr);
         return value;
     }
     @Override
@@ -329,6 +329,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         locals.put(expr, depth);
     }
     private Object lookUpVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null) return environment.getAt(distance, name.lexeme);
+        return globals.get(name);
+    }
+    private void assignVariable(Expr.Assign expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, expr.value);
+        } else {
+            globals.assign(expr.name, expr.value);
+        }
+        environment.assign(expr.name, expr.value);
     }
 
     // misc

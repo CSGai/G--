@@ -18,17 +18,34 @@ public class Environment {
     }
 
     public void define(String name, Object value) {values.put(name, value);}
-    void undefine(String name, Object value) {values.remove(name, value);}
+
     public void assign(Token name, Object value) {
+        // recursivly assigns value to name in the relevent scope
         if (values.containsKey(name.lexeme)) {values.put(name.lexeme, value); return;}
         if (enclosingScope!=null) {enclosingScope.assign(name, value); return;}
 
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
+    public void assignAt(Integer distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
+    }
+
     public Object get(Token name) {
         if (values.containsKey(name.lexeme)) return values.get(name.lexeme);
         if (enclosingScope!= null) return enclosingScope.get(name);
 
         throw new RuntimeError(name, "undefined variable '" + name.lexeme + "'.");
+    }
+    public Object getAt(Integer distance, String name) {
+        return ancestor(distance).values.get(name);
+    }
+
+    private Environment ancestor(Integer distance) {
+        Environment ancestorPointer = this;
+        for (int i = 0; i < distance; i++) {
+            assert ancestorPointer != null;
+            ancestorPointer = ancestorPointer.enclosingScope;
+        }
+        return ancestorPointer;
     }
 }
