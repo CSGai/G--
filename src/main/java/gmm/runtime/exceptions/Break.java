@@ -1,4 +1,4 @@
-package main.java.gmm.exceptions;
+package main.java.gmm.runtime.exceptions;
 
 import main.java.gmm.ast.Token;
 

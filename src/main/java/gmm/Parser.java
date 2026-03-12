@@ -1,6 +1,5 @@
-package main.java.gmm.runtime;
+package main.java.gmm;
 
-import main.java.gmm.Gmm;
 import main.java.gmm.ast.Expr;
 import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
@@ -13,17 +12,17 @@ import java.util.function.Supplier;
 
 import static main.java.gmm.ast.TokenType.*;
 
-public class Parser {
+class Parser {
     private static class ParseError extends RuntimeException {}
 
     final private List<Token> tokens;
     private int current_idx = 0;
 
-    public Parser(List<Token> tokens) {
+    Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
-    public List<Stmt> parse() {
+    List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
 
         while (!endOfFile()) {

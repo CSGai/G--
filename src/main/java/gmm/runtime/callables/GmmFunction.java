@@ -3,7 +3,7 @@ package main.java.gmm.runtime.callables;
 import main.java.gmm.runtime.Environment;
 import main.java.gmm.runtime.Interpreter;
 import main.java.gmm.ast.Stmt;
-import main.java.gmm.exceptions.Return;
+import main.java.gmm.runtime.exceptions.Return;
 import java.util.List;
 
 public class GmmFunction implements GmmCallable {

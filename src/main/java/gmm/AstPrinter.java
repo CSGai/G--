@@ -1,4 +1,6 @@
-package main.java.gmm.ast;
+package main.java.gmm;
+
+import main.java.gmm.ast.Expr;
 
 class AstPrinter implements Expr.Visitor<String> {
 

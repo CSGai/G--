@@ -1,4 +1,4 @@
-package main.java.gmm.exceptions;
+package main.java.gmm.runtime.exceptions;
 
 public class Return extends RuntimeException {
     public final Object value;

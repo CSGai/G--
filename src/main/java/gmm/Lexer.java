@@ -1,6 +1,5 @@
-package main.java.gmm.runtime;
+package main.java.gmm;
 
-import main.java.gmm.Gmm;
 import main.java.gmm.ast.Token;
 import main.java.gmm.ast.TokenType;
 
@@ -13,11 +12,11 @@ import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 import static main.java.gmm.ast.TokenType.*;
 
-public class Lexer {
+class Lexer {
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
 
-    public Lexer(String source) {
+    Lexer(String source) {
         this.source = source;
     }
 
@@ -47,7 +46,7 @@ public class Lexer {
         keywords.put("daleg", CONTINUE);
     }
 
-    public List<Token> scanTokens() {
+    List<Token> scanTokens() {
         while (!endOfFile()) {
             lex_start_idx = current_idx;
             scanToken();
@@ -159,7 +158,7 @@ public class Lexer {
         return true;
     }
 
-    public char advance() {
+    char advance() {
         current_idx += 1;
         return source.charAt(current_idx - 1);
     }
@@ -175,10 +174,10 @@ public class Lexer {
     }
 
     // tokens
-    public void addToken(TokenType type) {
+    void addToken(TokenType type) {
         addToken(type, null);
     }
-    public void addToken(TokenType type, Object literal) {
+    void addToken(TokenType type, Object literal) {
         tokens.add(new Token(type, getLexeme(), literal, line));
     }
 
