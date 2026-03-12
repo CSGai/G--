@@ -150,7 +150,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 throw new RuntimeError(expr.operator,"Operands haiav lehiot shney misparim oh shney machrozot");
             case STAR:
                 if (left instanceof Double l && right instanceof Double r) return l * r;
-                if (left instanceof String && right instanceof Double) return ((String) left).repeat((int)right);
+                if (left instanceof String && right instanceof Double) return ((String) left).repeat(((Double) right).intValue());
                 throw new RuntimeError(expr.operator,"Operands haiav lehiot shney misparim oh machrozet veh mispar");
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
