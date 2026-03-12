@@ -10,15 +10,14 @@ import main.java.gmm.runtime.exceptions.Return;
 import main.java.gmm.runtime.callables.GmmCallable;
 import main.java.gmm.runtime.callables.GmmFunction;
 import main.java.gmm.runtime.callables.GmmLambda;
-import main.java.gmm.runtime.errors.RuntimeError;
+import main.java.gmm.errors.RuntimeError;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     final Environment globals = new Environment();
     private Environment environment = globals;
+    private final Map<Expr, Integer> locals = new HashMap<>();
 
     public Interpreter() {
         // define built-in functions here
@@ -121,7 +120,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        return lookUpVariable(expr.name, expr);
     }
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
@@ -326,6 +325,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             this.environment = previousEnv;
         }
     }
+    public void resolve(Expr expr, int depth) {
+        locals.put(expr, depth);
+    }
+    private Object lookUpVariable(Token name, Expr expr) {
+    }
+
     // misc
     private String stringify(Object obj) {
         switch (obj) {

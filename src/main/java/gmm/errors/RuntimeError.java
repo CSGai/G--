@@ -1,4 +1,4 @@
-package main.java.gmm.runtime.errors;
+package main.java.gmm.errors;
 
 import main.java.gmm.ast.Token;
 

@@ -4,7 +4,7 @@ import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
 import main.java.gmm.ast.TokenType;
 import main.java.gmm.runtime.Interpreter;
-import main.java.gmm.runtime.errors.RuntimeError;
+import main.java.gmm.errors.RuntimeError;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

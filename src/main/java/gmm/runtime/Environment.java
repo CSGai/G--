@@ -1,7 +1,7 @@
 package main.java.gmm.runtime;
 
 import main.java.gmm.ast.Token;
-import main.java.gmm.runtime.errors.RuntimeError;
+import main.java.gmm.errors.RuntimeError;
 
 import java.util.HashMap;
 import java.util.Map;
