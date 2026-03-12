@@ -32,7 +32,7 @@ mish scopeTest <- "scope1";
 // scope test2
 hadpes scopeTest;
 
-hadpes "#" * 10;
+hadpes "#" * 100;
 
 // lambda test
 mish f <- kef: x -> hadpes x; ;
