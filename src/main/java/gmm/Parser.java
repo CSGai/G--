@@ -53,7 +53,7 @@ class Parser {
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
         if (match(BREAK)) return breakStatement();
         if (match(CONTINUE)) return continueStatement();
-        if (match(PRINT)) return printStatement();
+//        if (match(PRINT)) return printStatement();
         return expressionStatement();
     }
     private Stmt expressionStatement() {
@@ -158,6 +158,7 @@ class Parser {
         consume(SEMICOLON, "Expect ';' after variable declaration.");
         return new Stmt.Var(name, initializer);
     }
+    @Deprecated
     private Stmt printStatement() {
         Expr value = expression();
         consume(SEMICOLON, "Expect ; after statement");

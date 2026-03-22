@@ -265,6 +265,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         environment.define(stmt.name.lexeme, function);
         return null;
     }
+    @Deprecated
     @Override
     public Void visitPrintStmt(Stmt.Print stmt) {
         Object val = eval(stmt.expression);

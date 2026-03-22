@@ -113,6 +113,7 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
     public String visitFunctionStmt(Stmt.Function stmt) {
         return "";
     }
+    @Deprecated
     @Override
     public String visitPrintStmt(Stmt.Print stmt) {
         return "";
