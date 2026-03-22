@@ -8,3 +8,16 @@ kef functest: fun -> {
 }
 
 functest(kef: x -> hadpes x+5;);
+
+
+mish l = 8;
+l = 7;
+{
+kef functest: fun -> {
+    hadpes l;
+}
+
+functest(l);
+mish l = 5;
+functest(l);
+}

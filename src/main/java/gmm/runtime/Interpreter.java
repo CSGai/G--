@@ -40,7 +40,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
             @Override
             public int arity() {
-                return 0;
+                return 1;
+            }
+        });
+        globals.define("hadpes", new GmmCallable() {
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                System.out.print(arguments);
+                return null;
+            }
+
+            @Override
+            public int arity() {
+                return 1;
             }
         });
     }
