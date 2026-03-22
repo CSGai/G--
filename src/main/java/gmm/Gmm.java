@@ -71,26 +71,28 @@ public class Gmm {
         Parser parser = new Parser(tokens);
         List<Stmt> statments = parser.parse();
 
-        // NEED TO REDO FOR MORE CLEAR AND DETAILED PRESENTATION OF AST TREE
-        System.out.println("Statements:");
-        for (Stmt statment : statments) {
-            if (statment instanceof Stmt.Block stmtBlock) {
-                System.out.println("statements of block: " + stmtBlock);
-                for (Stmt stmt : stmtBlock.statements) {
-                    System.out.println("\t" + stmt);
-                }
-            } else if (statment instanceof Stmt.Function stmtFunction) {
-                System.out.println("statements of function: '" + stmtFunction.name.lexeme + "' | " + stmtFunction);
-                for (Stmt stmt : stmtFunction.body) {
-                    System.out.println("\t" + stmt);
-                }
-            } else if (statment instanceof Stmt.Expression stmtExpression) {
-                System.out.println(stmtExpression + " -> " + stmtExpression.expression + " -> " + ast.print(stmtExpression.expression) );
+        System.out.println(ast.printAll(statments));
 
-            } else {
-                System.out.println(statment);
-            }
-        }
+        // NEED TO REDO FOR MORE CLEAR AND DETAILED PRESENTATION OF AST TREE
+//        System.out.println("Statements:");
+//        for (Stmt statment : statments) {
+//            if (statment instanceof Stmt.Block stmtBlock) {
+//                System.out.println("statements of block: " + stmtBlock);
+//                for (Stmt stmt : stmtBlock.statements) {
+//                    System.out.println("\t" + stmt);
+//                }
+//            } else if (statment instanceof Stmt.Function stmtFunction) {
+//                System.out.println("statements of function: '" + stmtFunction.name.lexeme + "' | " + stmtFunction);
+//                for (Stmt stmt : stmtFunction.body) {
+//                    System.out.println("\t" + stmt);
+//                }
+//            } else if (statment instanceof Stmt.Expression stmtExpression) {
+//                System.out.println(stmtExpression + " -> " + stmtExpression.expression + " -> " + ast.print(stmtExpression.expression) );
+//
+//            } else {
+//                System.out.println(statment);
+//            }
+//        }
         System.out.println("...........");
 
         // Stop if there was a syntax/parse error.
@@ -105,7 +107,7 @@ public class Gmm {
 
 
         // Interpreter
-        interpreter.interpret(statments);
+//        interpreter.interpret(statments);
 
     }
 
@@ -118,6 +120,7 @@ public class Gmm {
         else report(token.line, token.lexeme, message);
     }
     private static void report(int line, String location, String message) {
+        line++;
         System.err.println("[line " + line + "] Error at '" + location + "' -> " + message);
         errorFlag = true;
     }
