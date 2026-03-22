@@ -350,12 +350,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     private void assignVariable(Expr.Assign expr, Object value) {
         Integer distance = locals.get(expr);
-        if (distance != null) {
-            environment.assignAt(distance, expr.name, value);
-        } else {
-            globals.assign(expr.name, value);
-        }
-        environment.assign(expr.name, value);
+        if (distance != null) environment.assignAt(distance, expr.name, value);
+        else globals.assign(expr.name, value);
     }
 
     // misc

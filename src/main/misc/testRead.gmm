@@ -28,3 +28,48 @@ mish scopeTest <- "scope1";
         hadpes(i);
     }
 }
+
+// scope test2
+hadpes(scopeTest);
+
+hadpes("#" * 100);
+
+// lambda test
+mish f <- kef: x -> hadpes(x); ;
+
+f(5);
+
+
+kef functest: fun -> {
+    fun(5);
+}
+
+functest(kef: x -> hadpes(x+5););
+
+
+leh mish j <- 0; j<5; j++ -> {
+    eim j == 1 -> daleg;
+    leh mish i <- 0; i<5; i++ -> {
+        eim i==1 -> shbor;
+        hadpes(i);
+    }
+    eim j==3 -> shbor;
+}
+
+kef test: a, b -> {
+    hadpes(a+b);
+}
+
+
+mish f <- kef: x -> hadpes(x); ;
+
+f(5);
+
+
+kef functest: fun -> {
+    fun(5);
+}
+
+functest(kef: x -> hadpes(x+5););
+
+hadpes(50500);
