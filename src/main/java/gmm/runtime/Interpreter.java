@@ -46,7 +46,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         globals.define("hadpes", new GmmCallable() {
             @Override
             public Object call(Interpreter interpreter, List<Object> arguments) {
-                System.out.print(arguments);
+                Object arg = arguments.getFirst();
+                if (arg instanceof Double darg) arg = darg.intValue();
+                System.out.println(arg);
                 return null;
             }
 
@@ -137,7 +139,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = eval(expr.value);
-        assignVariable(expr);
+        assignVariable(expr, value);
         return value;
     }
     @Override
@@ -346,14 +348,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (distance != null) return environment.getAt(distance, name.lexeme);
         return globals.get(name);
     }
-    private void assignVariable(Expr.Assign expr) {
+    private void assignVariable(Expr.Assign expr, Object value) {
         Integer distance = locals.get(expr);
         if (distance != null) {
-            environment.assignAt(distance, expr.name, expr.value);
+            environment.assignAt(distance, expr.name, value);
         } else {
-            globals.assign(expr.name, expr.value);
+            globals.assign(expr.name, value);
         }
-        environment.assign(expr.name, expr.value);
+        environment.assign(expr.name, value);
     }
 
     // misc

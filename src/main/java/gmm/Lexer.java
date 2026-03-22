@@ -36,7 +36,7 @@ class Lexer {
         keywords.put("nachon", TRUE);
         keywords.put("zilch", NULL);
         keywords.put("kef", FUNCTION);
-        keywords.put("hadpes", PRINT);
+//        keywords.put("hadpes", PRINT); @Deprecated
         keywords.put("hachzer", RETURN);
         keywords.put("super", SUPER);
         keywords.put("mish", VAR); //mishtaneh
