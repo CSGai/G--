@@ -74,4 +74,6 @@ functest(kef: x -> hadpes(x+5););
 
 hadpes(50500);
 
+mish warningTest <- "YEY";
+
 daleg;

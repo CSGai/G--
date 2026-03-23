@@ -99,6 +99,9 @@ public class Gmm {
         if (token.type == TokenType.EOF) report(token.line, " at end", message);
         else report(token.line, token.lexeme, message);
     }
+    public static void warning(Token token, String message) {
+        System.err.println("[line " + token.line + "] Warning at '" + token.lexeme + "' -> " + message);
+    }
     private static void report(int line, String location, String message) {
         line++;
         System.err.println("[line " + line + "] Error at '" + location + "' -> " + message);

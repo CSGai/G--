@@ -9,14 +9,28 @@ import java.util.*;
 
 class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
+
+    private class varStatus {
+        final Token name; Boolean defined; Boolean used;
+        varStatus(Token name, boolean defined, boolean used) {
+            this.name = name;
+            this.defined = defined;
+            this.used = used;
+        }
+    };
     // binds name to resolve status in a scope, collected into a scope stack
-    private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+    private final Stack<Map<String, varStatus>> scopes = new Stack<>();
 
     private enum ScopeType { NONE, FUNCTION, LAMBDA, LOOP }
     private ScopeType currentScope = ScopeType.NONE;
 
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
+    }
+    void resolve(List<Stmt> statements) {
+        startScope();
+        for (Stmt stmt : statements) resolve(stmt);
+        endScope();
     }
 
     // expressions
@@ -78,10 +92,14 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        if (!scopes.isEmpty() && scopes.peek().get(expr.name.lexeme) == Boolean.FALSE) {
-            Gmm.error(expr.name, "Can't read local variable in its own initializer.");
+        if (!scopes.isEmpty()) {
+            varStatus status = scopes.peek().get(expr.name.lexeme);
+            if (status != null && !status.defined) {
+                Gmm.error(expr.name, "Can't read local variable in its own initializer.");
+            }
         }
         resolveLocal(expr, expr.name);
+        used(expr.name);
         return null;
     }
 
@@ -126,7 +144,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
-        if (currentScope != ScopeType.FUNCTION || currentScope != ScopeType.LAMBDA) Gmm.error(stmt.keyword, "Can't return from top-level code.");
+        if (currentScope != ScopeType.FUNCTION && currentScope != ScopeType.LAMBDA) Gmm.error(stmt.keyword, "Can't return from top-level code.");
         if (stmt.value != null) resolve(stmt.value);
         return null;
     }
@@ -146,6 +164,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 //        resolveFunction(stmt.params, stmt.body);
         return null;
     }
+    @Deprecated
     @Override
     public Void visitPrintStmt(Stmt.Print stmt) {
         resolve(stmt.expression);
@@ -154,9 +173,6 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
 
     // visitor helpers
-    void resolve(List<Stmt> statements) {
-        for (Stmt stmt : statements) resolve(stmt);
-    }
     private void resolve(Stmt stmt) {
         stmt.accept(this);
     }
@@ -194,21 +210,31 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     // scope helpers
     private void startScope() {
-        scopes.push(new HashMap<String, Boolean>());
+        scopes.push(new HashMap<String, varStatus>());
     }
     private void endScope() {
+        Map<String, varStatus> scope = scopes.peek();
+        scope.forEach((name, status) -> {
+            if (!status.used) Gmm.warning(status.name, "Variable never used.");
+        });
         scopes.pop();
     }
+
     private void declare(Token name) {
         if (scopes.isEmpty()) return;
-        Map<String, Boolean> scope = scopes.peek();
+        Map<String, varStatus> scope = scopes.peek();
         if (scope.containsKey(name.lexeme)) Gmm.error(name, "Variable already exists in scope.");
-        scope.put(name.lexeme, false);
+        scope.put(name.lexeme, new varStatus(name, false, false));
     }
     private void define(Token name) {
         if (scopes.isEmpty()) return;
-        scopes.peek().put(name.lexeme, true);
+        scopes.peek().get(name.lexeme).defined = true;
     }
-
+    private void used(Token name) {
+        for (int i = scopes.size() - 1; i >= 0; i--) {
+            varStatus status = scopes.get(i).get(name.lexeme);
+            if (status != null) { status.used = true; return; }
+            }
+        }
 }
 
