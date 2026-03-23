@@ -73,3 +73,5 @@ kef functest: fun -> {
 functest(kef: x -> hadpes(x+5););
 
 hadpes(50500);
+
+daleg;
