@@ -107,7 +107,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
         startScope();
-        resolve(stmt.statements);
+        resolveStmts(stmt.statements);
         endScope();
         return null;
     }
@@ -173,21 +173,6 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
 
     // visitor helpers
-    private void resolve(Stmt stmt) {
-        stmt.accept(this);
-    }
-    private void resolve(Expr expr) {
-        expr.accept(this);
-    }
-    private void resolveLocal(Expr expr, Token name) {
-        for (int i = scopes.size() - 1; i >= 0; i--) {
-            if (scopes.get(i).containsKey(name.lexeme)) {
-                // distance from current scope
-                interpreter.resolve(expr, scopes.size() - 1 - i);
-                return;
-            }
-        }
-    }
     private void resolveFunction(Stmt.Function function, ScopeType type) {
         resolveFunction(function.params, function.body, type);
     }
@@ -203,9 +188,27 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             declare(param);
             define(param);
         }
-        resolve(body);
+        resolveStmts(body);
         endScope();
         currentScope = enclosingFunction;
+    }
+    private void resolve(Stmt stmt) {
+        stmt.accept(this);
+    }
+    private void resolve(Expr expr) {
+        expr.accept(this);
+    }
+    private void resolveStmts(List<Stmt> statements) {
+        for (Stmt stmt : statements) resolve(stmt);
+    }
+    private void resolveLocal(Expr expr, Token name) {
+        for (int i = scopes.size() - 1; i >= 0; i--) {
+            if (scopes.get(i).containsKey(name.lexeme)) {
+                // distance from current scope
+                interpreter.resolve(expr, scopes.size() - 1 - i);
+                return;
+            }
+        }
     }
 
     // scope helpers
