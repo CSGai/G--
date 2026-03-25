@@ -4,6 +4,7 @@ import main.java.gmm.Gmm;
 import main.java.gmm.ast.Expr;
 import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
+import main.java.gmm.runtime.callables.NativeFunctions;
 import main.java.gmm.runtime.exceptions.Break;
 import main.java.gmm.runtime.exceptions.Continue;
 import main.java.gmm.runtime.exceptions.Return;
@@ -20,44 +21,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Map<Expr, Integer> locals = new HashMap<>();
 
     public Interpreter() {
-        // define built-in functions here
-        globals.define("clock", new GmmCallable() {
-            @Override
-            public Object call(Interpreter interpreter, List<Object> arguments) {
-                return (double)System.currentTimeMillis() / 1000.0;
-            }
-            @Override
-            public int arity() {return 0;}
-            @Override
-            public String toString() { return "<nativefn>";}
-        });
-        globals.define("input", new GmmCallable() {
-            final Scanner scanner = new Scanner(System.in);
-            @Override
-            public Object call(Interpreter interpreter, List<Object> arguments) {
-
-                return scanner.nextLine();
-            }
-
-            @Override
-            public int arity() {
-                return 1;
-            }
-        });
-        globals.define("hadpes", new GmmCallable() {
-            @Override
-            public Object call(Interpreter interpreter, List<Object> arguments) {
-                Object arg = arguments.getFirst();
-                if (arg instanceof Double darg) arg = darg.intValue();
-                System.out.println(arg);
-                return null;
-            }
-
-            @Override
-            public int arity() {
-                return 1;
-            }
-        });
+        NativeFunctions.functions.forEach(globals::define);
     }
 
     public void interpret(List<Stmt> statments) {
