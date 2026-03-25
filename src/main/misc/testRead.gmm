@@ -37,43 +37,11 @@ hadpes("#" * 100);
 // lambda test
 mish f <- kef: x -> hadpes(x); ;
 
-f(5);
-
-
-kef functest: fun -> {
-    fun(5);
-}
-
-functest(kef: x -> hadpes(x+5););
+f("---Lmbda Test Success---");
 
 
 leh mish j <- 0; j<5; j++ -> {
     eim j == 1 -> daleg;
-    leh mish i <- 0; i<5; i++ -> {
-        eim i==1 -> shbor;
-        hadpes(i);
-    }
+    hadpes(j);
     eim j==3 -> shbor;
 }
-
-kef test: a, b -> {
-    hadpes(a+b);
-}
-
-
-mish f <- kef: x -> hadpes(x); ;
-
-f(5);
-
-
-kef functest: fun -> {
-    fun(5);
-}
-
-functest(kef: x -> hadpes(x+5););
-
-hadpes(50500);
-
-mish warningTest <- "YEY";
-
-daleg;

@@ -32,9 +32,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             public String toString() { return "<nativefn>";}
         });
         globals.define("input", new GmmCallable() {
+            final Scanner scanner = new Scanner(System.in);
             @Override
             public Object call(Interpreter interpreter, List<Object> arguments) {
-                Scanner scanner = new Scanner(System.in);
+
                 return scanner.nextLine();
             }
 

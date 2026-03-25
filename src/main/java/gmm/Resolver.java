@@ -10,7 +10,7 @@ import java.util.*;
 class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
 
-    private class varStatus {
+    private static class varStatus {
         final Token name; Boolean defined; Boolean used;
         varStatus(Token name, boolean defined, boolean used) {
             this.name = name;
@@ -28,9 +28,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         this.interpreter = interpreter;
     }
     void resolve(List<Stmt> statements) {
-        startScope();
         for (Stmt stmt : statements) resolve(stmt);
-        endScope();
     }
 
     // expressions
