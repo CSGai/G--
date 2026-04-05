@@ -246,7 +246,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        GmmFunction function = new GmmFunction(stmt, environment);
+        GmmFunction function = new GmmFunction(stmt, environment, false);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -256,7 +256,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         Map<String, GmmFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
-            methods.put(method.name.lexeme, new GmmFunction(method, environment));
+            methods.put(method.name.lexeme, new GmmFunction(method, environment, method.name.lexeme.equals("itchol")));
         }
 
         GmmClass kita = new GmmClass(stmt.name.lexeme, methods);

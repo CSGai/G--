@@ -3,6 +3,7 @@ package main.java.gmm;
 import main.java.gmm.ast.Expr;
 import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
+import main.java.gmm.ast.TokenType;
 import main.java.gmm.runtime.Interpreter;
 
 import java.util.List;
@@ -11,7 +12,13 @@ import java.util.HashMap;
 import java.util.Stack;
 
 
-enum ScopeType { NONE, FUNCTION, LAMBDA, METHOD }
+enum ScopeType {
+    NONE,
+    FUNCTION,
+    LAMBDA,
+    METHOD,
+    INITIALIZER
+}
 enum ClassType {
     NONE,
     CLASS
@@ -170,6 +177,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
         if (currentScope == ScopeType.NONE) Gmm.error(stmt.keyword, "Can't return from top-level code");
+        if (currentScope == ScopeType.INITIALIZER) Gmm.error(stmt.keyword, "Can't return a value from an initializer");
         if (stmt.value != null) resolve(stmt.value);
         return null;
     }
@@ -200,6 +208,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         scopes.peek().put("this", new varStatus(null, true, false));
         for (Stmt.Function method : stmt.methods) {
             ScopeType declaration = ScopeType.METHOD;
+            if (method.name.lexeme.equals("itchol")) declaration = ScopeType.INITIALIZER;
             resolveFunction(method, declaration);
         }
         endScope();
@@ -261,7 +270,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private void endScope() {
         Map<String, varStatus> scope = scopes.peek();
         scope.forEach((name, status) -> {
-            if (!status.used) Gmm.warning(status.name, "Variable never used");
+            if (status.name != null && !status.used) Gmm.warning(status.name, "Variable never used");
         });
         scopes.pop();
     }

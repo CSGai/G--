@@ -51,29 +51,30 @@ class Parser {
         List<Stmt.Function> methods = new ArrayList<>();
 
         while (!check(RIGHT_BRACE) && !endOfFile()) {
-            // change later to allow variable all declerations
-            methods.add(function("method"));
+
+            if (match(FUNCTION)) methods.add(function("method"));
+//            else if (match(VAR)) methods.add(property());
         }
         consume(RIGHT_BRACE, "Expected '}' after class body");
 
         return new Stmt.Class(name, methods);
     }
     private Stmt.Function function(String kind) {
-        Token name = consume(IDENTIFIER, "Expected " + kind + " name.");
+        Token name = consume(IDENTIFIER, "Expected " + kind + " name");
 
-        consume(COLON, "Expected ':' after " + kind + " name.");
+        consume(COLON, "Expected ':' after " + kind + " name");
         List<Token> params = new ArrayList<>();
 
         if (!check(RIGHT_ARROW)) {
             do {
-                if (params.size() >= 255) error(peek(), "Can't have more than 255 params.");
-                params.add(consume(IDENTIFIER, "Expected param name."));
+                if (params.size() >= 255) error(peek(), "Can't have more than 255 params");
+                params.add(consume(IDENTIFIER, "Expected param name"));
             }
             while (match(COMMA));
         }
-        Token arrow = consume(RIGHT_ARROW, "Expected '->' after arguments.");
+        Token arrow = consume(RIGHT_ARROW, "Expected '->' after arguments");
 
-        consume(LEFT_BRACE, "Expected '{' before " + kind + " body.");
+        consume(LEFT_BRACE, "Expected '{' before " + kind + " body");
         List<Stmt> body = block();
 
         return new Stmt.Function(name, params, body);
@@ -84,9 +85,11 @@ class Parser {
         Expr initializer = null;
         if (match(LEFT_ARROW)) initializer = expression();
 
-        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        consume(SEMICOLON, "Expect ';' after variable declaration");
         return new Stmt.Var(name, initializer);
     }
+
+
     //statements
     private Stmt statement() {
         if (match(FOR)) return forStatement();
@@ -101,7 +104,7 @@ class Parser {
     }
     private Stmt expressionStatement() {
         Expr expr = expression();
-        consume(SEMICOLON, "Expect ';' after expression.");
+        consume(SEMICOLON, "Expect ';' after expression");
         return new Stmt.Expression(expr);
     }
     private Stmt returnStatement() {
@@ -109,7 +112,7 @@ class Parser {
 
         Expr value = null;
         if(!check(SEMICOLON)) value = expression();
-        consume(SEMICOLON, "Expected ';' after return value.");
+        consume(SEMICOLON, "Expected ';' after return value");
 
         return new Stmt.Return(keyword, value);
     }
@@ -121,7 +124,7 @@ class Parser {
 
         Expr condition = null;
         if (!check(SEMICOLON)) condition = expression();
-        consume(SEMICOLON, "Expect ';' after loop condition.");
+        consume(SEMICOLON, "Expect ';' after loop condition");
 
         Expr increment = null;
         if (!check(RIGHT_ARROW)) increment = expression();
@@ -169,7 +172,7 @@ class Parser {
 
         while(!check(RIGHT_BRACE) && !endOfFile()) statments.add(declaration());
 
-        consume(RIGHT_BRACE, "Expected } at end of block.");
+        consume(RIGHT_BRACE, "Expected } at end of block");
         return statments;
     }
     @Deprecated
@@ -208,7 +211,7 @@ class Parser {
             } else if (expr instanceof Expr.Get get) {
                 return new Expr.Set(get.name, get.object , value);
             }
-            error(assignSymbol, "Invalid assignment target.");
+            error(assignSymbol, "Invalid assignment target");
         }
         return expr;
     }
@@ -321,12 +324,12 @@ class Parser {
         List<Expr> arguments = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
             do {
-                if (arguments.size() >= 255) error(peek(), "Can't have more than 255 arguments.");
+                if (arguments.size() >= 255) error(peek(), "Can't have more than 255 arguments");
                 arguments.add(assignment());
             }
             while (match(COMMA));
         }
-        Token paren = consume(RIGHT_PAREN,"Expected ')' after arguments.");
+        Token paren = consume(RIGHT_PAREN,"Expected ')' after arguments");
 
         return new Expr.Call(callee, paren, arguments);
     }
@@ -342,24 +345,24 @@ class Parser {
             case THIS: advance(); return new Expr.This(previous());
             case FUNCTION:
                 advance();
-                consume(COLON, "Expected ':' after lambda.");
+                consume(COLON, "Expected ':' after lambda");
                 List<Token> params = new ArrayList<>();
                 if (!check(RIGHT_ARROW)) {
                     do {
-                        if (params.size() >= 255) error(peek(), "Can't have more than 255 params.");
-                        params.add(consume(IDENTIFIER, "Expected param name."));
+                        if (params.size() >= 255) error(peek(), "Can't have more than 255 params");
+                        params.add(consume(IDENTIFIER, "Expected param name"));
                     }
                     while (match(COMMA));
                 }
-                consume(RIGHT_ARROW, "Expected '->' after arguments.");
+                consume(RIGHT_ARROW, "Expected '->' after arguments");
                 return new Expr.Lambda(params, statement());
             case LEFT_PAREN:
                 advance();
                 Expr expr = expression();
-                consume(RIGHT_PAREN, "Expected ')' after expression.");
+                consume(RIGHT_PAREN, "Expected ')' after expression");
                 return new Expr.Grouping(expr);
             default:
-                throw error(peek(), "Expected expression.");
+                throw error(peek(), "Expected expression");
         }
     }
 

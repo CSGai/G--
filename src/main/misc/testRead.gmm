@@ -1,11 +1,16 @@
 kita Bagel {
-    eat: amount -> {
-        hachzer "yummy"*amount;
+    kef itchol: amount -> {
+        this::amount <- amount;
     }
+    kef eat: -> {
+        hachzer this::amount;
+    }
+    /*mish classy {
+        this::amount <- this::amount + 10;
+        hachzer "nah";
+    }*/
 }
 
-mish bah <- Bagel();
-bah::test <- "hello";
-
-hadpes(bah::eat(5));
-hadpes(bah::test);
+mish bah <- Bagel(5);
+// bah::classy;
+hadpes(bah::eat());

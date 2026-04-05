@@ -70,7 +70,6 @@ public class Gmm {
         AstPrinter ast = new AstPrinter();
         Parser parser = new Parser(tokens);
         List<Stmt> statments = parser.parse();
-        System.out.println(statments);
         System.out.println(ast.printAll(statments));
 
         System.out.println("...........");
@@ -85,10 +84,8 @@ public class Gmm {
         // Stop if there was a resolution error.
         if (errorFlag) return;
 
-
         // Interpreter
         interpreter.interpret(statments);
-
     }
 
     // error handling

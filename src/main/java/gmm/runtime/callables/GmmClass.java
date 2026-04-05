@@ -16,17 +16,23 @@ public class GmmClass implements GmmCallable{
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        return new GmmInstance(this);
+        GmmInstance instance = new GmmInstance(this);
+        GmmFunction initializer = findMethod("itchol");
+        if (initializer != null) initializer.bind(instance).call(interpreter, arguments);
+        return instance;
+    }
+
+
+    @Override
+    public int arity() {
+        GmmFunction initializer = findMethod("itchol");
+        if (initializer == null) return 0;
+        return initializer.arity();
     }
 
     GmmFunction findMethod(String name) {
         if (methods.containsKey(name)) return methods.get(name);
         return null;
-    }
-
-    @Override
-    public int arity() {
-        return 0;
     }
 
     @Override

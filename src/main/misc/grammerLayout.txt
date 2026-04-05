@@ -21,6 +21,7 @@ declaration-> funDecl | classDecl | varDecl | statement ;
 varDecl    -> "mish" IDENTIFIER ( "<-" expression )? ";" ;
 funDecl    -> "kef" function ;
 classDecl  -> "kita" IDENTIFIER "{" function* "}" ;
+*class init-> "itchol" is method name
 
 function   -> IDENTIFIER ":" parameters? "->" block ;
 lambda     -> ("kef" ":" parameters? "->" expression)
