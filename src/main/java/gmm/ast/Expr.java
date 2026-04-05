@@ -9,6 +9,7 @@ public abstract class Expr {
         R visitCallExpr(Call expr);
         R visitGetExpr(Get expr);
         R visitSetExpr(Set expr);
+        R visitThisExpr(This expr);
         R visitLambdaExpr(Lambda expr);
         R visitGroupingExpr(Grouping expr);
         R visitLiteralExpr(Literal expr);
@@ -93,6 +94,18 @@ public abstract class Expr {
         public final Token name;
         public final Expr object;
         public final Expr value;
+    }
+    public static class This extends Expr {
+        public This(Token keyword) {
+            this.keyword = keyword;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitThisExpr(this);
+        }
+
+        public final Token keyword;
     }
     public static class Lambda extends Expr {
         public Lambda(List<Token> params, Stmt body) {

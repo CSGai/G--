@@ -187,6 +187,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         throw new RuntimeError(expr.name,"Only instances have fields");
     }
     @Override
+    public Object visitThisExpr(Expr.This expr) {
+        return lookUpVariable(expr.keyword, expr);
+    }
+    @Override
     public Object visitLambdaExpr(Expr.Lambda expr) {
         return new GmmLambda(expr, environment);
     }

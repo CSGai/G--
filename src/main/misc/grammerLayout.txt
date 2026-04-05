@@ -52,6 +52,6 @@ factor     -> unary ( ( "/" | "*" ) unary )* ; EXPR, (TOKEN, EXPR)...
 unary      -> ( "!" | "-" ) unary | postfix ; TOKEN, EXPR
 postfix    -> call ("++"|"--") ; EXPR, TOKEN
 call       -> primary ( "(" arguments? ")" | "::" IDENTIFIER )* )*  ; EXPR, (EXPR...)
-primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER | lambda ; EXPR
+primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER | lambda | THIS ; EXPR
 
 arguments  -> expression ( "," expression )* ; EXPR, ("," EXPR)...

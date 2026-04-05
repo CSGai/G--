@@ -51,7 +51,8 @@ class Parser {
         List<Stmt.Function> methods = new ArrayList<>();
 
         while (!check(RIGHT_BRACE) && !endOfFile()) {
-            if (match(FUNCTION)) methods.add(function("method"));
+            // change later to allow variable all declerations
+            methods.add(function("method"));
         }
         consume(RIGHT_BRACE, "Expected '}' after class body");
 
@@ -338,6 +339,7 @@ class Parser {
             case NULL: advance(); return new Expr.Literal(null);
             case NUMBER, STRING: advance(); return new Expr.Literal(token.literal);
             case IDENTIFIER: advance(); return new Expr.Variable(previous());
+            case THIS: advance(); return new Expr.This(previous());
             case FUNCTION:
                 advance();
                 consume(COLON, "Expected ':' after lambda.");

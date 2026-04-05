@@ -1,5 +1,5 @@
 kita Bagel {
-    kef eat: amount -> {
+    eat: amount -> {
         hachzer "yummy"*amount;
     }
 }

@@ -12,6 +12,10 @@ import java.util.Stack;
 
 
 enum ScopeType { NONE, FUNCTION, LAMBDA, METHOD }
+enum ClassType {
+    NONE,
+    CLASS
+}
 class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
 
@@ -27,7 +31,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Stack<Map<String, varStatus>> scopes = new Stack<>();
 
     private int loopDepth = 0;
-
+    private ClassType currentClass = ClassType.NONE;
     private ScopeType currentScope = ScopeType.NONE;
 
     Resolver(Interpreter interpreter) {
@@ -65,6 +69,13 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitSetExpr(Expr.Set expr) {
         resolve(expr.value);
         resolve(expr.object);
+        return null;
+    }
+    @Override
+    public Object visitThisExpr(Expr.This expr) {
+        if (currentClass != ClassType.CLASS) Gmm.error(expr.keyword, "'this' not allowed outside class scope");
+        if (currentScope != ScopeType.METHOD) Gmm.error(expr.keyword, "'this' not allowed outside method scope");
+        resolveLocal(expr, expr.keyword);
         return null;
     }
     @Override
@@ -110,7 +121,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (!scopes.isEmpty()) {
             varStatus status = scopes.peek().get(expr.name.lexeme);
             if (status != null && !status.defined) {
-                Gmm.error(expr.name, "Can't read local variable in its own initializer.");
+                Gmm.error(expr.name, "Can't read local variable in its own initializer");
             }
         }
         resolveLocal(expr, expr.name);
@@ -148,17 +159,17 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitBreakStmt(Stmt.Break stmt) {
-        if (loopDepth == 0) Gmm.error(stmt.self, "Can't break outside loop.");
+        if (loopDepth == 0) Gmm.error(stmt.self, "Can't break outside loop");
         return null;
     }
     @Override
     public Void visitContinueStmt(Stmt.Continue stmt) {
-        if (loopDepth == 0) Gmm.error(stmt.self, "Can't continue outside loop.");
+        if (loopDepth == 0) Gmm.error(stmt.self, "Can't continue outside loop");
         return null;
     }
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
-        if (currentScope == ScopeType.NONE) Gmm.error(stmt.keyword, "Can't return from top-level code.");
+        if (currentScope == ScopeType.NONE) Gmm.error(stmt.keyword, "Can't return from top-level code");
         if (stmt.value != null) resolve(stmt.value);
         return null;
     }
@@ -180,12 +191,20 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+
         declare(stmt.name);
         define(stmt.name);
+        startScope();
+        scopes.peek().put("this", new varStatus(null, true, false));
         for (Stmt.Function method : stmt.methods) {
             ScopeType declaration = ScopeType.METHOD;
             resolveFunction(method, declaration);
         }
+        endScope();
+
+        currentClass = enclosingClass;
         return null;
     }
     @Deprecated
@@ -242,7 +261,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private void endScope() {
         Map<String, varStatus> scope = scopes.peek();
         scope.forEach((name, status) -> {
-            if (!status.used) Gmm.warning(status.name, "Variable never used.");
+            if (!status.used) Gmm.warning(status.name, "Variable never used");
         });
         scopes.pop();
     }
@@ -250,7 +269,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private void declare(Token name) {
         if (scopes.isEmpty()) return;
         Map<String, varStatus> scope = scopes.peek();
-        if (scope.containsKey(name.lexeme)) Gmm.error(name, "Variable already exists in scope.");
+        if (scope.containsKey(name.lexeme)) Gmm.error(name, "Variable already exists in scope");
         scope.put(name.lexeme, new varStatus(name, false, false));
     }
     private void define(Token name) {

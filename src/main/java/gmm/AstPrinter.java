@@ -40,17 +40,18 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
         return "( call " + expr.callee.accept(this)
                 + ( args.isEmpty() ? "" : " " + args ) + " )";
     }
-
     @Override
     public String visitGetExpr(Expr.Get expr) {
         return parenthesize("[Get] " + expr.object.accept(this) + " " + expr.name.lexeme);
     }
-
     @Override
     public String visitSetExpr(Expr.Set expr) {
         return parenthesize("[Set] " + expr.object.accept(this) + " " + expr.name.lexeme);
     }
-
+    @Override
+    public String visitThisExpr(Expr.This expr) {
+        return "[This]";
+    }
     @Override
     public String visitLambdaExpr(Expr.Lambda expr) {
         String params = expr.params.stream()

@@ -30,6 +30,12 @@ public class GmmFunction implements GmmCallable {
         }
         return null;
     }
+    public Object bind(GmmInstance instance) {
+        Environment environment = new Environment(closure);
+        environment.define("this", instance);
+        return new GmmFunction(declaration, environment);
+    }
+
     @Override
     public int arity() {
         return declaration.params.size();
