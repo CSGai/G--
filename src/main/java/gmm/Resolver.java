@@ -51,6 +51,17 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
     @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        resolve(expr.object);
+        return null;
+    }
+    @Override
+    public Object visitSetExpr(Expr.Set expr) {
+        resolve(expr.value);
+        resolve(expr.object);
+        return null;
+    }
+    @Override
     public Object visitLambdaExpr(Expr.Lambda expr) {
         resolveFunction(expr, ScopeType.LAMBDA);
         return null;
@@ -162,6 +173,14 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 //        resolveFunction(stmt.params, stmt.body);
         return null;
     }
+
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt) {
+        declare(stmt.name);
+        define(stmt.name);
+        return null;
+    }
+
     @Deprecated
     @Override
     public Void visitPrintStmt(Stmt.Print stmt) {

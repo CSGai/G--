@@ -4,14 +4,12 @@ import main.java.gmm.Gmm;
 import main.java.gmm.ast.Expr;
 import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
-import main.java.gmm.runtime.callables.NativeFunctions;
+import main.java.gmm.runtime.callables.*;
 import main.java.gmm.runtime.exceptions.Break;
 import main.java.gmm.runtime.exceptions.Continue;
 import main.java.gmm.runtime.exceptions.Return;
-import main.java.gmm.runtime.callables.GmmCallable;
-import main.java.gmm.runtime.callables.GmmFunction;
-import main.java.gmm.runtime.callables.GmmLambda;
 import main.java.gmm.errors.RuntimeError;
+import main.java.gmm.runtime.callables.GmmClass;
 
 import java.util.*;
 
@@ -167,10 +165,26 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         if (arguments.size() != function.arity()) {
             throw new RuntimeError(expr.paren,
-                           "Tsipa " + function.arity() + " argumentim aval kibel " + arguments.size() + ".");
+                           "Tsipa " + function.arity() + " argumentim aval kibel " + arguments.size() + "");
         }
 
         return function.call(this, arguments);
+    }
+    @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        Object prop = eval(expr.object);
+        if (prop instanceof GmmInstance instance) return instance.get(expr.name);
+        throw new RuntimeError(expr.name,"Only instances have properties");
+    }
+    @Override
+    public Object visitSetExpr(Expr.Set expr) {
+        Object obj = eval(expr.object);
+        if ((obj instanceof GmmInstance instance)) {
+            Object value = eval(expr.value);
+            instance.set(expr.name, value);
+            return value;
+        }
+        throw new RuntimeError(expr.name,"Only instances have fields");
     }
     @Override
     public Object visitLambdaExpr(Expr.Lambda expr) {
@@ -232,6 +246,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         environment.define(stmt.name.lexeme, function);
         return null;
     }
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt) {
+        environment.define(stmt.name.lexeme, null);
+        GmmClass kita = new GmmClass(stmt.name.lexeme);
+        environment.assign(stmt.name, kita);
+        return null;
+    }
+
     @Deprecated
     @Override
     public Void visitPrintStmt(Stmt.Print stmt) {

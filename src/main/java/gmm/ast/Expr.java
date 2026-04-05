@@ -7,6 +7,8 @@ public abstract class Expr {
         R visitAssignExpr(Assign expr);
         R visitBinaryExpr(Binary expr);
         R visitCallExpr(Call expr);
+        R visitGetExpr(Get expr);
+        R visitSetExpr(Set expr);
         R visitLambdaExpr(Lambda expr);
         R visitGroupingExpr(Grouping expr);
         R visitLiteralExpr(Literal expr);
@@ -61,6 +63,36 @@ public abstract class Expr {
         public final Expr callee;
         public final Token paren;
         public final List<Expr> arguments;
+    }
+    public static class Get extends Expr {
+        public Get(Token name, Expr object) {
+            this.name = name;
+            this.object = object;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitGetExpr(this);
+        }
+
+        public final Token name;
+        public final Expr object;
+    }
+    public static class Set extends Expr {
+        public Set(Token name, Expr object, Expr value) {
+            this.name = name;
+            this.object = object;
+            this.value = value;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitSetExpr(this);
+        }
+
+        public final Token name;
+        public final Expr object;
+        public final Expr value;
     }
     public static class Lambda extends Expr {
         public Lambda(List<Token> params, Stmt body) {

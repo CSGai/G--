@@ -32,9 +32,10 @@ class Parser {
     }
 
     /* -- Heiarchy -- */
-    // statements
+    // declerations
     private Stmt declaration() {
         try {
+            if (match(CLASS)) return classDecleration();
             if (match(FUNCTION)) return function("function");
             if (match(VAR)) return varDeclaration();
             return statement();
@@ -43,23 +44,18 @@ class Parser {
             synchronize();
             return null;
         }
+    }
+    private Stmt classDecleration() {
+        Token name = consume(IDENTIFIER, "Expected class name after declaration keyword");
+        consume(LEFT_BRACE, "Expected '{' before class body");
+        List<Stmt.Function> methods = new ArrayList<>();
 
-    }
-    private Stmt statement() {
-        if (match(FOR)) return forStatement();
-        if (match(RETURN)) return returnStatement();
-        if (match(WHILE)) return whileStatement();
-        if (match(IF)) return ifStatement();
-        if (match(LEFT_BRACE)) return new Stmt.Block(block());
-        if (match(BREAK)) return breakStatement();
-        if (match(CONTINUE)) return continueStatement();
-//        if (match(PRINT)) return printStatement();
-        return expressionStatement();
-    }
-    private Stmt expressionStatement() {
-        Expr expr = expression();
-        consume(SEMICOLON, "Expect ';' after expression.");
-        return new Stmt.Expression(expr);
+        while (!check(RIGHT_BRACE) && !endOfFile()) {
+            methods.add(function("method"));
+        }
+        consume(RIGHT_BRACE, "Expected '}' after class body");
+
+        return new Stmt.Class(name, methods);
     }
     private Stmt.Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expected " + kind + " name.");
@@ -76,10 +72,36 @@ class Parser {
         }
         Token arrow = consume(RIGHT_ARROW, "Expected '->' after arguments.");
 
-        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        consume(LEFT_BRACE, "Expected '{' before " + kind + " body.");
         List<Stmt> body = block();
 
         return new Stmt.Function(name, params, body);
+    }
+    private Stmt varDeclaration() {
+        Token name = consume(IDENTIFIER, "Expected identifier after declaration keyword");
+
+        Expr initializer = null;
+        if (match(LEFT_ARROW)) initializer = expression();
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
+    }
+    //statements
+    private Stmt statement() {
+        if (match(FOR)) return forStatement();
+        if (match(RETURN)) return returnStatement();
+        if (match(WHILE)) return whileStatement();
+        if (match(IF)) return ifStatement();
+        if (match(LEFT_BRACE)) return new Stmt.Block(block());
+        if (match(BREAK)) return breakStatement();
+        if (match(CONTINUE)) return continueStatement();
+//        if (match(PRINT)) return printStatement();
+        return expressionStatement();
+    }
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
     }
     private Stmt returnStatement() {
         Token keyword = previous();
@@ -149,15 +171,6 @@ class Parser {
         consume(RIGHT_BRACE, "Expected } at end of block.");
         return statments;
     }
-    private Stmt varDeclaration() {
-        Token name = consume(IDENTIFIER, "Expected identifier after declaration keyword");
-
-        Expr initializer = null;
-        if (match(LEFT_ARROW)) initializer = expression();
-
-        consume(SEMICOLON, "Expect ';' after variable declaration.");
-        return new Stmt.Var(name, initializer);
-    }
     @Deprecated
     private Stmt printStatement() {
         Expr value = expression();
@@ -181,15 +194,18 @@ class Parser {
         return lExpr;
     }
     private Expr assignment() {
+
         Expr expr = checkMissingLHO(this::or, LEFT_ARROW);
 
         if (match(LEFT_ARROW)) {
             Token assignSymbol = previous();
             Expr value = assignment();
 
-            if (expr instanceof Expr.Variable) {
-                Token name = ((Expr.Variable) expr).name;
+            if (expr instanceof Expr.Variable variable) {
+                Token name = (variable).name;
                 return new Expr.Assign(name, value);
+            } else if (expr instanceof Expr.Get get) {
+                return new Expr.Set(get.name, get.object , value);
             }
             error(assignSymbol, "Invalid assignment target.");
         }
@@ -291,6 +307,10 @@ class Parser {
 
         while (true) {
             if (match(LEFT_PAREN)) expr = finishCall(expr);
+            else if (match(RIGHT_ARROW)) {
+            Token name = consume(IDENTIFIER, "Expected property name after '->'");
+            expr = new Expr.Get(name, expr);
+            }
             else break;
         }
 

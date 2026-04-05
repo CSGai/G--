@@ -6,28 +6,42 @@ mish scopeTest <- "scope1";
 
     // assignment test
     mish blarg <- 20;
-    hadpes blarg;
+    hadpes(blarg);
     blarg <- 10;
-    hadpes blarg;
+    hadpes(blarg);
 
     // print test + ternary test
-    hadpes "output: " + (test == 5 ? "10" : "4");
+    hadpes("output: " + (test == 5 ? "10" : "4"));
 
     // scope test
-    hadpes scopeTest;
+    hadpes(scopeTest);
 
     eim test == blarg oh test != 5 -> {
-        hadpes "if and or WORKS";
+        hadpes("if and or WORKS");
     } acheret {
-        hadpes "else WORKS";
+        hadpes("else WORKS");
     }
-    hadpes test--;
-    hadpes -test;
+    hadpes(test--);
+    hadpes(-test);
 
     leh mish i <- 0; i<5; i++ -> {
-        hadpes i;
+        hadpes(i);
     }
 }
 
 // scope test2
-hadpes scopeTest;
+hadpes(scopeTest);
+
+hadpes("#" * 100);
+
+// lambda test
+mish f <- kef: x -> hadpes(x); ;
+
+f("---Lmbda Test Success---");
+
+
+leh mish j <- 0; j<5; j++ -> {
+    eim j == 1 -> daleg;
+    hadpes(j);
+    eim j==3 -> shbor;
+}

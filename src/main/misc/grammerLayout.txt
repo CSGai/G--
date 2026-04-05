@@ -17,17 +17,20 @@ operator   -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/" ; 
 # parsing layer grammer
 program    -> declaration* EOF ;
 
-declaration-> funDecl | varDecl | statement ;
+declaration-> funDecl | classDecl | varDecl | statement ;
 varDecl    -> "mish" IDENTIFIER ( "<-" expression )? ";" ;
 funDecl    -> "kef" function ;
+classDecl  -> "kita" IDENTIFIER "{" function* "}" ;
 
-function   -> IDENTIFIER "(" parameters? ")" -> block ;
+function   -> IDENTIFIER ":" parameters? "->" block ;
+lambda     -> ("kef" ":" parameters? "->" expression)
+
+parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
 
 statement  -> exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | forEachStmt | returnStmt;
 expression -> assignment ;
 
 block      -> "{" declaration* "}" ;
-assignment -> IDENTIFIER "<-" assignment | equality ;
 
 exprStmt   -> expression ";" ;
 ifStmt     -> "eim" expression "->" statement ( "else" "->" statement )? ;
@@ -38,7 +41,7 @@ returnStmt -> "hachzer" expression? ";" ;
 
 expression -> sequence ; EXPR
 sequence   -> assignment ( ( "," ) assignment )* ; EXPR, (TOKEN, EXPR)...
-assignment -> ( identifier "<-" )? assignment | logic_or ;
+assignment -> ( ( call "->")? IDENTIFIER "<-" )? assignment | logic_or ;
 logic_or   -> logic_and ( "oh" logic_and )* ; EXPR, (TOKEN, EXPR)...
 logic_and  -> ternary ( "veh" ternary )* ; EXPR, (TOKEN, EXPR)...
 ternary    -> equality ( ( "?" ) equality ( ":" ) equality )? ; EXPR, TOKEN, EXPR, TOKEN, EXPR
@@ -48,10 +51,7 @@ term       -> factor ( ( "-" | "+" ) factor )* ; EXPR, (TOKEN, EXPR)...
 factor     -> unary ( ( "/" | "*" ) unary )* ; EXPR, (TOKEN, EXPR)...
 unary      -> ( "!" | "-" ) unary | postfix ; TOKEN, EXPR
 postfix    -> call ("++"|"--") ; EXPR, TOKEN
-call       -> primary ( "(" arguments? ")" )* ; EXPR, (EXPR...)
+call       -> primary ( "(" arguments? ")" | "::" IDENTIFIER )* )*  ; EXPR, (EXPR...)
 primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER | lambda ; EXPR
 
-lambda     -> ("kef" ":" parameters? "->" expression)
-
 arguments  -> expression ( "," expression )* ; EXPR, ("," EXPR)...
-parameters -> IDENTIFIER ( "," IDENTIFIER )* ;

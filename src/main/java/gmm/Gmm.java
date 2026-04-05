@@ -70,7 +70,7 @@ public class Gmm {
         AstPrinter ast = new AstPrinter();
         Parser parser = new Parser(tokens);
         List<Stmt> statments = parser.parse();
-
+        System.out.println(statments);
         System.out.println(ast.printAll(statments));
 
         System.out.println("...........");

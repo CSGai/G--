@@ -8,12 +8,14 @@ import java.util.List;
 
 public class GenerateAst {
     public static void main(String[] args) throws IOException {
-        String outputDir = "./src/main/java/gmm/constructs";
+        String outputDir = "./src/main/java/gmm/ast";
 
         defineAst(outputDir, "Expr", Arrays.asList(
                 "Assign   : Token name, Expr value",
                 "Binary   : Expr left, Token operator, Expr right",
                 "Call     : Expr callee, Token paren, List<Expr> arguments",
+                "Get      : Token name, Expr object",
+                "Set      : Token name, Expr object, Expr value",
                 "Lambda   : List<Token> params, Stmt body",
                 "Grouping : Expr expression",
                 "Literal  : Object value",
@@ -33,6 +35,7 @@ public class GenerateAst {
                 "Return     : Token keyword, Expr value",
                 "Var        : Token name, Expr initializer",
                 "Function   : Token name, List<Token> params, List<Stmt> body",
+                "Class      : Token name, List<Stmt.Function> methods",
                 "Print      : Expr expression"
         ));
     }
@@ -41,7 +44,7 @@ public class GenerateAst {
         String path = outputDir + "/" + baseName + ".java";
         PrintWriter writer = new PrintWriter(path, StandardCharsets.UTF_8);
 
-        writer.println("package main.java.gmm.constructs;");
+        writer.println("package main.java.gmm.ast;");
         writer.println();
         writer.println("import java.util.List;");
         writer.println();
