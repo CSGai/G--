@@ -40,6 +40,17 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
         return "( call " + expr.callee.accept(this)
                 + ( args.isEmpty() ? "" : " " + args ) + " )";
     }
+
+    @Override
+    public String visitGetExpr(Expr.Get expr) {
+        return parenthesize("[Get] " + expr.object.accept(this) + " " + expr.name.lexeme);
+    }
+
+    @Override
+    public String visitSetExpr(Expr.Set expr) {
+        return parenthesize("[Set] " + expr.object.accept(this) + " " + expr.name.lexeme);
+    }
+
     @Override
     public String visitLambdaExpr(Expr.Lambda expr) {
         String params = expr.params.stream()
@@ -181,12 +192,12 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
     @Override
     public String visitClassStmt(Stmt.Class stmt) {
         String methods = stmt.methods.stream()
-                .map(t -> t.name.lexeme)
+                .map(t -> t.accept(this))
                 .collect(Collectors.joining(", "));
 
         return pad() + "[Class] " +
                 stmt.name.lexeme +
-                " ( " + methods + " )\n";
+                " { \n" + pad() + methods + "\n}";
     }
 
     @Deprecated

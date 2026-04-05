@@ -5,8 +5,13 @@ import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
 import main.java.gmm.runtime.Interpreter;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Stack;
 
+
+enum ScopeType { NONE, FUNCTION, LAMBDA, METHOD }
 class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
 
@@ -21,7 +26,8 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // binds name to resolve status in a scope, collected into a scope stack
     private final Stack<Map<String, varStatus>> scopes = new Stack<>();
 
-    private enum ScopeType { NONE, FUNCTION, LAMBDA, LOOP }
+    private int loopDepth = 0;
+
     private ScopeType currentScope = ScopeType.NONE;
 
     Resolver(Interpreter interpreter) {
@@ -134,26 +140,25 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
-        ScopeType enclosingFunction = currentScope;
-        currentScope = ScopeType.LOOP;
+        loopDepth++;
         resolve(stmt.condition);
         resolve(stmt.body);
-        currentScope = enclosingFunction;
+        loopDepth--;
         return null;
     }
     @Override
     public Void visitBreakStmt(Stmt.Break stmt) {
-        if (currentScope != ScopeType.LOOP) Gmm.error(stmt.self, "Can't break outside loop.");
+        if (loopDepth == 0) Gmm.error(stmt.self, "Can't break outside loop.");
         return null;
     }
     @Override
     public Void visitContinueStmt(Stmt.Continue stmt) {
-        if (currentScope != ScopeType.LOOP) Gmm.error(stmt.self, "Can't continue outside loop.");
+        if (loopDepth == 0) Gmm.error(stmt.self, "Can't continue outside loop.");
         return null;
     }
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
-        if (currentScope != ScopeType.FUNCTION && currentScope != ScopeType.LAMBDA) Gmm.error(stmt.keyword, "Can't return from top-level code.");
+        if (currentScope == ScopeType.NONE) Gmm.error(stmt.keyword, "Can't return from top-level code.");
         if (stmt.value != null) resolve(stmt.value);
         return null;
     }
@@ -173,14 +178,16 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 //        resolveFunction(stmt.params, stmt.body);
         return null;
     }
-
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
         declare(stmt.name);
         define(stmt.name);
+        for (Stmt.Function method : stmt.methods) {
+            ScopeType declaration = ScopeType.METHOD;
+            resolveFunction(method, declaration);
+        }
         return null;
     }
-
     @Deprecated
     @Override
     public Void visitPrintStmt(Stmt.Print stmt) {

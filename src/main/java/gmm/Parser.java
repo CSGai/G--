@@ -51,7 +51,7 @@ class Parser {
         List<Stmt.Function> methods = new ArrayList<>();
 
         while (!check(RIGHT_BRACE) && !endOfFile()) {
-            methods.add(function("method"));
+            if (match(FUNCTION)) methods.add(function("method"));
         }
         consume(RIGHT_BRACE, "Expected '}' after class body");
 
@@ -307,7 +307,7 @@ class Parser {
 
         while (true) {
             if (match(LEFT_PAREN)) expr = finishCall(expr);
-            else if (match(RIGHT_ARROW)) {
+            else if (match(COLON_COLON)) {
             Token name = consume(IDENTIFIER, "Expected property name after '->'");
             expr = new Expr.Get(name, expr);
             }

@@ -1,3 +1,11 @@
-kita Bagel {}
+kita Bagel {
+    kef eat: amount -> {
+        hachzer "yummy"*amount;
+    }
+}
+
 mish bah <- Bagel();
-hadpes(bah);
+bah::test <- "hello";
+
+hadpes(bah::eat(5));
+hadpes(bah::test);

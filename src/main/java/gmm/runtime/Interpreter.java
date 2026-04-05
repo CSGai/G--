@@ -249,7 +249,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
         environment.define(stmt.name.lexeme, null);
-        GmmClass kita = new GmmClass(stmt.name.lexeme);
+
+        Map<String, GmmFunction> methods = new HashMap<>();
+        for (Stmt.Function method : stmt.methods) {
+            methods.put(method.name.lexeme, new GmmFunction(method, environment));
+        }
+
+        GmmClass kita = new GmmClass(stmt.name.lexeme, methods);
         environment.assign(stmt.name, kita);
         return null;
     }
