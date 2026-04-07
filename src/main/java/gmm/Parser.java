@@ -334,17 +334,16 @@ class Parser {
         return new Expr.Call(callee, paren, arguments);
     }
     private Expr primary() {
-        Token token = peek();
+        Token token = advance();
 
         switch (token.type) {
-            case TRUE: advance(); return new Expr.Literal(true);
-            case FALSE: advance(); return new Expr.Literal(false);
-            case NULL: advance(); return new Expr.Literal(null);
-            case NUMBER, STRING: advance(); return new Expr.Literal(token.literal);
-            case IDENTIFIER: advance(); return new Expr.Variable(previous());
-            case THIS: advance(); return new Expr.This(previous());
+            case TRUE: return new Expr.Literal(true);
+            case FALSE: return new Expr.Literal(false);
+            case NULL: return new Expr.Literal(null);
+            case NUMBER, STRING: return new Expr.Literal(token.literal);
+            case IDENTIFIER: return new Expr.Variable(previous());
+            case THIS: return new Expr.This(previous());
             case FUNCTION:
-                advance();
                 consume(COLON, "Expected ':' after lambda");
                 List<Token> params = new ArrayList<>();
                 if (!check(RIGHT_ARROW)) {
@@ -357,7 +356,6 @@ class Parser {
                 consume(RIGHT_ARROW, "Expected '->' after arguments");
                 return new Expr.Lambda(params, statement());
             case LEFT_PAREN:
-                advance();
                 Expr expr = expression();
                 consume(RIGHT_PAREN, "Expected ')' after expression");
                 return new Expr.Grouping(expr);
