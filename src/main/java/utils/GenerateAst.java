@@ -35,7 +35,7 @@ public class GenerateAst {
                 "Continue   : Token self",
                 "Return     : Token keyword, Expr value",
                 "Var        : Token name, Expr initializer",
-                "Function   : Token name, List<Token> params, List<Stmt> body",
+                "Function   : Token name, List<Token> params, List<Stmt> body, boolean isGetter",
                 "Class      : Token name, List<Stmt.Function> methods",
                 "Print      : Expr expression"
         ));

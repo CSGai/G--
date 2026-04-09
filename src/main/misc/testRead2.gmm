@@ -1,18 +1,47 @@
+mish scopeTest <- "scope1";
 
+{
+   mish scopeTest <- "scope2";
+   mish test <- 5;
 
-kita Bagel {
-    kef itchol: amount -> {
-        this::amount <- amount;
+    // assignment test
+    mish blarg <- 20;
+    hadpes(blarg);
+    blarg <- 10;
+    hadpes(blarg);
+
+    // print test + ternary test
+    hadpes("output: " + (test == 5 ? "10" : "4"));
+
+    // scope test
+    hadpes(scopeTest);
+
+    eim test == blarg oh test != 5 -> {
+        hadpes("if and or WORKS");
+    } acheret {
+        hadpes("else WORKS");
     }
-    kef eat: -> {
-        hachzer this::amount;
+    hadpes(test--);
+    hadpes(-test);
+
+    leh mish i <- 0; i<5; i++ -> {
+        hadpes(i);
     }
-    /*mish classy {
-        this::amount <- this::amount + 10;
-        hachzer "nah";
-    }*/
 }
 
-mish bah <- Bagel(5);
-// bah::classy;
-hadpes(bah::eat());
+// scope test2
+hadpes(scopeTest);
+
+hadpes("#" * 100);
+
+// lambda test
+mish f <- kef: x -> hadpes(x); ;
+
+f("---Lmbda Test Success---");
+
+
+leh mish j <- 0; j<5; j++ -> {
+    eim j == 1 -> daleg;
+    hadpes(j);
+    eim j==3 -> shbor;
+}

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GmmInstance {
-    final GmmClass kita;
+    public final GmmClass kita;
     private final Map<String, Object> fields = new HashMap<>();
 
     GmmInstance(GmmClass kita) {

@@ -161,19 +161,25 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         for ( Expr arg : expr.arguments) arguments.add(eval(arg));
 
         if (!(callee instanceof GmmCallable function)) {
-            throw new RuntimeError(expr.paren,callee.toString() + "lo nitan lekria");
+            throw new RuntimeError(expr.paren,callee.toString() + " lo nitan lekria");
         }
         if (arguments.size() != function.arity()) {
-            throw new RuntimeError(expr.paren,
-                           "Tsipa " + function.arity() + " argumentim aval kibel " + arguments.size() + "");
+            throw new RuntimeError(expr.paren, "Tsipa " + function.arity() + " argumentim aval kibel " + arguments.size());
         }
 
         return function.call(this, arguments);
     }
     @Override
     public Object visitGetExpr(Expr.Get expr) {
-        Object prop = eval(expr.object);
-        if (prop instanceof GmmInstance instance) return instance.get(expr.name);
+        Object object = eval(expr.object);
+        if (object instanceof GmmInstance instance) {
+            Object field = instance.get(expr.name);
+            if (field instanceof GmmFunction method) {
+                GmmFunction check = instance.kita.findMethod(expr.name.lexeme);
+                if (check.isGetter) return method.call(this, List.of());
+            }
+            return field;
+        }
         throw new RuntimeError(expr.name,"Only instances have properties");
     }
     @Override
@@ -246,7 +252,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        GmmFunction function = new GmmFunction(stmt, environment, false);
+        GmmFunction function = new GmmFunction(stmt, environment, false, false);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -256,7 +262,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         Map<String, GmmFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
-            methods.put(method.name.lexeme, new GmmFunction(method, environment, method.name.lexeme.equals("itchol")));
+            methods.put(method.name.lexeme, new GmmFunction(method, environment, method.name.lexeme.equals("itchol"), method.isGetter));
         }
 
         GmmClass kita = new GmmClass(stmt.name.lexeme, methods);

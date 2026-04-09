@@ -51,13 +51,22 @@ class Parser {
         List<Stmt.Function> methods = new ArrayList<>();
 
         while (!check(RIGHT_BRACE) && !endOfFile()) {
-
-            if (match(FUNCTION)) methods.add(function("method"));
-//            else if (match(VAR)) methods.add(property());
+            methods.add(getterMethod());
         }
         consume(RIGHT_BRACE, "Expected '}' after class body");
 
         return new Stmt.Class(name, methods);
+    }
+    private Stmt.Function getterMethod() {
+        if (tokens.get(current_idx+1).type != COLON) {
+            Token name = consume(IDENTIFIER, "Expected getter method name");
+            consume(LEFT_ARROW, "Expected '<-' after getter method name");
+            consume(LEFT_BRACE, "Expected '{' before getter method body");
+            List<Stmt> body = block();
+            return new Stmt.Function(name, new ArrayList<>(), body, true);
+        }
+
+        return function("method");
     }
     private Stmt.Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expected " + kind + " name");
@@ -77,7 +86,7 @@ class Parser {
         consume(LEFT_BRACE, "Expected '{' before " + kind + " body");
         List<Stmt> body = block();
 
-        return new Stmt.Function(name, params, body);
+        return new Stmt.Function(name, params, body, false);
     }
     private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expected identifier after declaration keyword");
@@ -208,7 +217,8 @@ class Parser {
             if (expr instanceof Expr.Variable variable) {
                 Token name = (variable).name;
                 return new Expr.Assign(name, value);
-            } else if (expr instanceof Expr.Get get) {
+            }
+            else if (expr instanceof Expr.Get get) {
                 return new Expr.Set(get.name, get.object , value);
             }
             error(assignSymbol, "Invalid assignment target");
@@ -312,9 +322,11 @@ class Parser {
         while (true) {
             if (match(LEFT_PAREN)) expr = finishCall(expr);
             else if (match(COLON_COLON)) {
-            Token name = consume(IDENTIFIER, "Expected property name after '->'");
+            Token name = consume(IDENTIFIER, "Expected property name after '::'");
+
             expr = new Expr.Get(name, expr);
             }
+
             else break;
         }
 
@@ -329,9 +341,9 @@ class Parser {
             }
             while (match(COMMA));
         }
-        Token paren = consume(RIGHT_PAREN,"Expected ')' after arguments");
-
+        Token paren = consume(RIGHT_PAREN, "Expected ')' after arguments");
         return new Expr.Call(callee, paren, arguments);
+
     }
     private Expr primary() {
         Token token = advance();
@@ -365,25 +377,50 @@ class Parser {
     }
 
     // consume
+
+    /**
+     * Advances by one token if the current token matches the given endToken.
+     *
+     * @param endToken the token to match against the current token
+     * @param message error message
+     * @return the current token
+     */
     private Token consume(TokenType endToken, String message) {
         if (!endOfFile() && endToken == peek().type) return advance();
         throw error(peek(), message);
     }
+    /**
+     * Advances by one token
+     * @return the current token
+     */
     private Token advance() {
         if (!endOfFile()) current_idx++;
         return previous();
     }
 
     // non-consume
+    private boolean check(TokenType type) {
+        if (endOfFile()) return false;
+        return peek().type == type;
+    }
+    private boolean match(TokenType... targets) {
+        if (endOfFile()) return false;
+
+        boolean result = false;
+        Token current_token = peek();
+
+        for (TokenType type : targets) {
+            result = type == current_token.type;
+            if (result) break;
+        }
+        if (result) current_idx++;
+        return result;
+    }
     private Token peek() {
         return tokens.get(current_idx);
     }
     private Token previous() {
         return tokens.get(current_idx - 1);
-    }
-    private boolean check(TokenType type) {
-        if (endOfFile()) return false;
-        return peek().type == type;
     }
 
     // special methods
@@ -395,19 +432,7 @@ class Parser {
         return nextInHierarchy.get();
     }
 
-    private boolean match(TokenType... targets) {
-        if (endOfFile()) return false;
 
-        boolean result = false;
-        Token current_token = tokens.get(current_idx);
-
-        for (TokenType type : targets) {
-            result = type == current_token.type;
-            if (result) break;
-        }
-        if (result) current_idx++;
-        return result;
-    }
 
     // error handeling
     private ParseError error(Token token, String message) {

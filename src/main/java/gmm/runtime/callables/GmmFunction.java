@@ -10,11 +10,13 @@ public class GmmFunction implements GmmCallable {
     private final Stmt.Function declaration;
     private final Environment closure;
     private final boolean isInitializer;
+    public final boolean isGetter;
 
-    public GmmFunction(Stmt.Function declaration, Environment closure, boolean isInitializer) {
+    public GmmFunction(Stmt.Function declaration, Environment closure, boolean isInitializer, boolean isGetter) {
         this.declaration = declaration;
         this.closure = closure;
         this.isInitializer = isInitializer;
+        this.isGetter = isGetter;
     }
 
     @Override
@@ -37,7 +39,7 @@ public class GmmFunction implements GmmCallable {
     public GmmFunction bind(GmmInstance instance) {
         Environment environment = new Environment(closure);
         environment.define("this", instance);
-        return new GmmFunction(declaration, environment, isInitializer);
+        return new GmmFunction(declaration, environment, isInitializer, false);
     }
 
     @Override

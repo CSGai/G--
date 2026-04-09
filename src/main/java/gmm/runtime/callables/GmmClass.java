@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GmmClass implements GmmCallable{
-    final String name;
+    public final String name;
     private final Map<String, GmmFunction> methods;
 
     public GmmClass(String name, Map<String, GmmFunction> methods) {
@@ -30,7 +30,7 @@ public class GmmClass implements GmmCallable{
         return initializer.arity();
     }
 
-    GmmFunction findMethod(String name) {
+    public GmmFunction findMethod(String name) {
         if (methods.containsKey(name)) return methods.get(name);
         return null;
     }
