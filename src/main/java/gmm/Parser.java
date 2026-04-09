@@ -36,7 +36,7 @@ class Parser {
     private Stmt declaration() {
         try {
             if (match(CLASS)) return classDecleration();
-            if (match(FUNCTION)) return function("function");
+            if (match(FUNCTION)) return function("function", PUBLIC);
             if (match(VAR)) return varDeclaration();
             return statement();
         }
@@ -58,17 +58,20 @@ class Parser {
         return new Stmt.Class(name, methods);
     }
     private Stmt.Function getterMethod() {
-        if (tokens.get(current_idx+1).type != COLON) {
+        TokenType accessMod = PUBLIC;
+        if (match(PRIVATE, PUBLIC)) accessMod = previous().type;
+
+        if (tokens.get(current_idx+1).type == LEFT_ARROW) {
             Token name = consume(IDENTIFIER, "Expected getter method name");
             consume(LEFT_ARROW, "Expected '<-' after getter method name");
             consume(LEFT_BRACE, "Expected '{' before getter method body");
             List<Stmt> body = block();
-            return new Stmt.Function(name, new ArrayList<>(), body, true);
+            return new Stmt.Function(name, new ArrayList<>(), body, true, accessMod);
         }
 
-        return function("method");
+        return function("method", accessMod);
     }
-    private Stmt.Function function(String kind) {
+    private Stmt.Function function(String kind, TokenType accessMod) {
         Token name = consume(IDENTIFIER, "Expected " + kind + " name");
 
         consume(COLON, "Expected ':' after " + kind + " name");
@@ -86,7 +89,7 @@ class Parser {
         consume(LEFT_BRACE, "Expected '{' before " + kind + " body");
         List<Stmt> body = block();
 
-        return new Stmt.Function(name, params, body, false);
+        return new Stmt.Function(name, params, body, false, accessMod);
     }
     private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expected identifier after declaration keyword");

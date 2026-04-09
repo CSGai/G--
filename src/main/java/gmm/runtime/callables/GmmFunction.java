@@ -41,7 +41,9 @@ public class GmmFunction implements GmmCallable {
         environment.define("this", instance);
         return new GmmFunction(declaration, environment, isInitializer, false);
     }
-
+    public Object getAccessModifier() {
+        return declaration.accessModifier;
+    }
     @Override
     public int arity() {
         return declaration.params.size();

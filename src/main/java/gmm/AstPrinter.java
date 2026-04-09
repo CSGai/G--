@@ -2,6 +2,7 @@ package main.java.gmm;
 
 import main.java.gmm.ast.Expr;
 import main.java.gmm.ast.Stmt;
+import main.java.gmm.ast.TokenType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -179,7 +180,9 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
                 .collect(Collectors.joining(", "));
 
         StringBuilder builder = new StringBuilder();
-        builder.append(pad()).append("[Function] ")
+        builder.append(pad());
+        builder.append("[").append(stmt.accessModifier).append("-");
+        builder.append("Function] ")
                 .append(stmt.name.lexeme)
                 .append(" ( ").append(params).append(" )\n");
 

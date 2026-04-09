@@ -123,11 +123,12 @@ public abstract class Stmt {
         public final Expr initializer;
     }
     public static class Function extends Stmt {
-        public Function(Token name, List<Token> params, List<Stmt> body, boolean isGetter) {
+        public Function(Token name, List<Token> params, List<Stmt> body, boolean isGetter, TokenType accessModifier) {
             this.name = name;
             this.params = params;
             this.body = body;
             this.isGetter = isGetter;
+            this.accessModifier = accessModifier;
         }
 
         @Override
@@ -139,6 +140,7 @@ public abstract class Stmt {
         public final List<Token> params;
         public final List<Stmt> body;
         public final boolean isGetter;
+        public final TokenType accessModifier;
     }
     public static class Class extends Stmt {
         public Class(Token name, List<Stmt.Function> methods) {

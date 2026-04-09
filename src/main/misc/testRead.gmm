@@ -2,14 +2,14 @@ kita Bagel {
     itchol: amount -> {
         this::amount <- amount;
     }
-    eat: -> {
+    prati eat: -> {
         hachzer this::amount;
     }
-    classy <- {
+    pumbi classy <- {
         hachzer this::amount + 10;
     }
 }
 
 mish bah <- Bagel(5);
 hadpes(bah::eat());
-hadpes(bah::classy);
+//hadpes(bah::classy);
