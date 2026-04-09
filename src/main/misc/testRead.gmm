@@ -5,11 +5,11 @@ kita Bagel {
     prati eat: -> {
         hachzer this::amount;
     }
-    pumbi classy <- {
+    prati classy <- {
         hachzer this::amount + 10;
     }
 }
 
 mish bah <- Bagel(5);
 hadpes(bah::eat());
-//hadpes(bah::classy);
+hadpes(bah::classy);

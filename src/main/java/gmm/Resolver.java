@@ -5,11 +5,9 @@ import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
 import main.java.gmm.ast.TokenType;
 import main.java.gmm.runtime.Interpreter;
+import main.java.gmm.runtime.callables.NativeFunctions;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Stack;
+import java.util.*;
 
 
 enum ScopeType {
@@ -17,7 +15,8 @@ enum ScopeType {
     FUNCTION,
     LAMBDA,
     METHOD,
-    INITIALIZER
+    INITIALIZER,
+    PRIVATE
 }
 enum ClassType {
     NONE,
@@ -27,19 +26,21 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
 
     private static class varStatus {
-        final Token name; Boolean defined; Boolean used;
-        varStatus(Token name, boolean defined, boolean used) {
+        final Token name; final ScopeType scope; Boolean defined; Boolean used;
+        varStatus(Token name, ScopeType scope, boolean defined, boolean used) {
             this.name = name;
+            this.scope = scope;
             this.defined = defined;
             this.used = used;
         }
-    };
+    }
     // binds name to resolve status in a scope, collected into a scope stack
     private final Stack<Map<String, varStatus>> scopes = new Stack<>();
+    private final Map<String, Map<String, Stmt.Function>> declerations = new HashMap<>();
 
     private int loopDepth = 0;
     private ClassType currentClass = ClassType.NONE;
-    private ScopeType currentScope = ScopeType.NONE;
+    private ScopeType currentScopeType = ScopeType.NONE;
 
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -69,6 +70,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Object visitGetExpr(Expr.Get expr) {
+        checkPrivateAccess(expr.name);
         resolve(expr.object);
         return null;
     }
@@ -81,13 +83,13 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitThisExpr(Expr.This expr) {
         if (currentClass != ClassType.CLASS) Gmm.error(expr.keyword, "'this' not allowed outside class scope");
-        if (currentScope != ScopeType.METHOD) Gmm.error(expr.keyword, "'this' not allowed outside method scope");
+        if (currentScopeType != ScopeType.METHOD) Gmm.error(expr.keyword, "'this' not allowed outside method scope");
         resolveLocal(expr, expr.keyword);
         return null;
     }
     @Override
     public Object visitLambdaExpr(Expr.Lambda expr) {
-        resolveFunction(expr, ScopeType.LAMBDA);
+        resolveFunction(expr);
         return null;
     }
     @Override
@@ -176,14 +178,15 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
-        if (currentScope == ScopeType.NONE) Gmm.error(stmt.keyword, "Can't return from top-level code");
-        if (currentScope == ScopeType.INITIALIZER) Gmm.error(stmt.keyword, "Can't return a value from an initializer");
+        if (currentScopeType == ScopeType.NONE) Gmm.error(stmt.keyword, "Can't return from top-level code");
+        if (currentScopeType == ScopeType.INITIALIZER) Gmm.error(stmt.keyword, "Can't return a value from an initializer");
         if (stmt.value != null) resolve(stmt.value);
         return null;
     }
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
         declare(stmt.name);
+        
         if (stmt.initializer != null) resolve(stmt.initializer);
         define(stmt.name);
         return null;
@@ -191,10 +194,12 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
         declare(stmt.name);
+        
         define(stmt.name);
+        if (currentClass == ClassType.NONE && stmt.accessModifier != TokenType.NULL)
+            Gmm.error(stmt.name, "Access modifier used outside of class");
 
         resolveFunction(stmt, ScopeType.FUNCTION);
-//        resolveFunction(stmt.params, stmt.body);
         return null;
     }
     @Override
@@ -205,10 +210,13 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         declare(stmt.name);
         define(stmt.name);
         startScope();
-        scopes.peek().put("this", new varStatus(null, true, false));
+        declerations.put(stmt.name.lexeme, new HashMap<>());
+        scopes.peek().put("this", new varStatus(null, currentScopeType, true, false));
         for (Stmt.Function method : stmt.methods) {
             ScopeType declaration = ScopeType.METHOD;
             if (method.name.lexeme.equals("itchol")) declaration = ScopeType.INITIALIZER;
+            else if (method.accessModifier == TokenType.PRIVATE) declaration = ScopeType.PRIVATE;
+            declerations.get(stmt.name.lexeme).put(method.name.lexeme, method);
             resolveFunction(method, declaration);
         }
         endScope();
@@ -228,13 +236,13 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private void resolveFunction(Stmt.Function function, ScopeType type) {
         resolveFunction(function.params, function.body, type);
     }
-    private void resolveFunction(Expr.Lambda lambda, ScopeType type) {
-        if (lambda.body instanceof Stmt.Block body) resolveFunction(lambda.params, body.statements, type);
-        else resolveFunction(lambda.params, List.of(lambda.body), type);
+    private void resolveFunction(Expr.Lambda lambda) {
+        if (lambda.body instanceof Stmt.Block body) resolveFunction(lambda.params, body.statements, ScopeType.LAMBDA);
+        else resolveFunction(lambda.params, List.of(lambda.body), ScopeType.LAMBDA);
     }
     private void resolveFunction(List<Token> params, List<Stmt> body, ScopeType type) {
-        ScopeType enclosingFunction = currentScope;
-        currentScope = type;
+        ScopeType enclosingFunction = currentScopeType;
+        currentScopeType = type;
         startScope();
         for (Token param : params) {
             declare(param);
@@ -242,7 +250,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         resolveStmts(body);
         endScope();
-        currentScope = enclosingFunction;
+        currentScopeType = enclosingFunction;
     }
     private void resolve(Stmt stmt) {
         stmt.accept(this);
@@ -262,6 +270,17 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         }
     }
+    private void checkPrivateAccess(Token name) {
+
+        Stmt.Function decl = declerations.values().stream()
+                .map(m -> m.get(name.lexeme))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+        if (decl == null) return;
+        if (decl.accessModifier != TokenType.PRIVATE) return;
+        Gmm.error(name, "Cannot call private method outside class");
+    }
 
     // scope helpers
     private void startScope() {
@@ -279,7 +298,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (scopes.isEmpty()) return;
         Map<String, varStatus> scope = scopes.peek();
         if (scope.containsKey(name.lexeme)) Gmm.error(name, "Variable already exists in scope");
-        scope.put(name.lexeme, new varStatus(name, false, false));
+        scope.put(name.lexeme, new varStatus(name, currentScopeType, false, false));
     }
     private void define(Token name) {
         if (scopes.isEmpty()) return;
@@ -291,5 +310,6 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             if (status != null) { status.used = true; return; }
             }
         }
+
 }
 
