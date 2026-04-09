@@ -175,8 +175,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (object instanceof GmmInstance instance) {
             Object field = instance.get(expr.name);
             if (field instanceof GmmFunction method) {
-                GmmFunction check = instance.kita.findMethod(expr.name.lexeme);
-                if (check.isGetter) return method.call(this, List.of());
+                if (instance.kita.findMethod(expr.name.lexeme).isGetter) return method.call(this, List.of());
             }
             return field;
         }
