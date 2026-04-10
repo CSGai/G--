@@ -5,8 +5,8 @@ kita Bagel {
     prati eat: -> {
         hachzer this::amount;
     }
-    prati classy <- {
-        hachzer this::amount + 10;
+    pumbi classy <- {
+        hachzer this::eat() + 10;
     }
 }
 

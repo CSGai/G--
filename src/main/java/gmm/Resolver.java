@@ -271,14 +271,13 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
     }
     private void checkPrivateAccess(Token name) {
-
         Stmt.Function decl = declerations.values().stream()
                 .map(m -> m.get(name.lexeme))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
         if (decl == null) return;
-        if (decl.accessModifier != TokenType.PRIVATE) return;
+        if (decl.accessModifier != TokenType.PRIVATE || currentClass == ClassType.CLASS) return;
         Gmm.error(name, "Cannot call private method outside class");
     }
 
