@@ -37,10 +37,13 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // binds name to resolve status in a scope, collected into a scope stack
     private final Stack<Map<String, varStatus>> scopes = new Stack<>();
     private final Map<String, Map<String, Stmt.Function>> declerations = new HashMap<>();
+    private final Map<String, String> methodToClass = new HashMap<>();
 
     private int loopDepth = 0;
     private ClassType currentClass = ClassType.NONE;
     private ScopeType currentScopeType = ScopeType.NONE;
+    private boolean staticScope = false;
+    private String currentClassName = null;
 
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -83,7 +86,9 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitThisExpr(Expr.This expr) {
         if (currentClass != ClassType.CLASS) Gmm.error(expr.keyword, "'this' not allowed outside class scope");
-        if (currentScopeType != ScopeType.METHOD) Gmm.error(expr.keyword, "'this' not allowed outside method scope");
+        if (currentScopeType != ScopeType.METHOD && currentScopeType != ScopeType.PRIVATE)
+            Gmm.error(expr.keyword, "'this' not allowed outside method scope");
+        if (staticScope) Gmm.error(expr.keyword, "'this' not allowed in static methods");
         resolveLocal(expr, expr.keyword);
         return null;
     }
@@ -205,23 +210,35 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
         ClassType enclosingClass = currentClass;
+        String enclosingClassName = currentClassName;
+
         currentClass = ClassType.CLASS;
+        currentClassName = stmt.name.lexeme;
 
         declare(stmt.name);
         define(stmt.name);
+
         startScope();
         declerations.put(stmt.name.lexeme, new HashMap<>());
         scopes.peek().put("this", new varStatus(null, currentScopeType, true, false));
+
         for (Stmt.Function method : stmt.methods) {
+            methodToClass.put(method.name.lexeme, stmt.name.lexeme);
+
             ScopeType declaration = ScopeType.METHOD;
             if (method.name.lexeme.equals("itchol")) declaration = ScopeType.INITIALIZER;
             else if (method.accessModifier == TokenType.PRIVATE) declaration = ScopeType.PRIVATE;
+            if (method.staticModifier != null) staticScope = true;
+
             declerations.get(stmt.name.lexeme).put(method.name.lexeme, method);
             resolveFunction(method, declaration);
         }
         endScope();
 
+        staticScope = false;
         currentClass = enclosingClass;
+        currentClassName = enclosingClassName;
+
         return null;
     }
     @Deprecated
@@ -271,14 +288,15 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
     }
     private void checkPrivateAccess(Expr.Get expr) {
-        Stmt.Function decl = declerations.values().stream()
-                .map(m -> m.get(expr.name.lexeme))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
-        if (decl == null) return;
-        if (decl.accessModifier != TokenType.PRIVATE || currentClass == ClassType.CLASS) return;
-        Gmm.error(expr.name, "Cannot call private method outside class");
+        String methodClass = methodToClass.get(expr.name.lexeme);
+        if (methodClass == null) return;
+
+        Stmt.Function decl = declerations.get(methodClass).get(expr.name.lexeme);
+        if (decl != null && decl.accessModifier == TokenType.PRIVATE) {
+            if (!methodClass.equals(currentClassName)) {
+                Gmm.error(expr.name, "Cannot access private method from outside class");
+            }
+        }
     }
 
     // scope helpers

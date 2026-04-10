@@ -175,9 +175,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object object = eval(expr.object);
         if (object instanceof GmmInstance instance) {
             Object field = instance.get(expr.name);
-            if (field instanceof GmmFunction method) {
-                if (instance.get(expr.name) instanceof GmmFunction func)
-                    if (func.isGetter) return method.call(this, List.of());
+            if (field instanceof GmmFunction method && method.isGetter) {
+                return method.call(this, List.of());
             }
             return field;
         }
@@ -253,7 +252,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        GmmFunction function = new GmmFunction(stmt, environment, false, false);
+        GmmFunction function = new GmmFunction(stmt, environment, false, stmt.isGetter);
         environment.define(stmt.name.lexeme, function);
         return null;
     }

@@ -60,9 +60,10 @@ class Parser {
     private Stmt.Function getterMethod() {
         TokenType accessMod = NULL;
         Token staticMod = null;
-
-        if (match(PRIVATE, PUBLIC)) accessMod = previous().type;
+        
         if (match(STATIC)) staticMod = previous();
+        if (match(PRIVATE, PUBLIC)) accessMod = previous().type;
+
 
         if (tokens.get(current_idx+1).type == LEFT_ARROW) {
             Token name = consume(IDENTIFIER, "Expected getter method name");

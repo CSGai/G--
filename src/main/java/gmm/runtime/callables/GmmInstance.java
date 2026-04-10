@@ -20,9 +20,9 @@ public class GmmInstance {
     }
 
     public Object get(Token name) {
-        if (fields.containsKey(name.lexeme)) return fields.get(name.lexeme);
         GmmFunction method = kita.findMethod(name.lexeme);
         if (method != null) return method.bind(this);
+        if (fields.containsKey(name.lexeme)) return fields.get(name.lexeme);
 
         throw new RuntimeError(name, "Undefined property '" + name.lexeme);
     }

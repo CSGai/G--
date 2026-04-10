@@ -28,9 +28,9 @@ public class GmmClass extends GmmInstance implements GmmCallable{
     }
     @Override
     public Object get(Token name) {
-        if (fields.containsKey(name.lexeme)) return fields.get(name.lexeme);
         GmmFunction method = findMethod(name.lexeme);
         if (method != null) return method;
+        if (fields.containsKey(name.lexeme)) return fields.get(name.lexeme);
 
         throw new RuntimeError(name, "Undefined property '" + name.lexeme);
     }

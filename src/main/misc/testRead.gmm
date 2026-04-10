@@ -2,20 +2,22 @@ kita Bagel {
     itchol: amount -> {
         this::amount <- amount;
     }
-    prati eat: -> {
-        hachzer this::amount;
-    }
     pumbi classy <- {
         hachzer this::eat() + 10;
     }
+    prati eat: -> {
+        hachzer this::amount;
+    }
+
     stati full: food -> {
         hachzer 55 + food;
     }
 }
 
-mish bah <- Bagel(5);
-// hadpes(bah::eat()); // throws error when uncommented for private scope check
-// hadpes(bah::classy);
+//mish bah <- Bagel(5);
+//hadpes(bah::eat()); // throws error when uncommented for private scope check
+//hadpes(bah::classy);
+hadpes(Bagel::classy);
 
-hadpes(bah::full(10));
-hadpes(Bagel::full(15));
+//hadpes(bah::full(10));
+//hadpes(Bagel::full(15));
