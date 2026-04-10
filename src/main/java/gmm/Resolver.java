@@ -70,7 +70,7 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Object visitGetExpr(Expr.Get expr) {
-        checkPrivateAccess(expr.name);
+        checkPrivateAccess(expr);
         resolve(expr.object);
         return null;
     }
@@ -270,15 +270,15 @@ class Resolver implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         }
     }
-    private void checkPrivateAccess(Token name) {
+    private void checkPrivateAccess(Expr.Get expr) {
         Stmt.Function decl = declerations.values().stream()
-                .map(m -> m.get(name.lexeme))
+                .map(m -> m.get(expr.name.lexeme))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
         if (decl == null) return;
         if (decl.accessModifier != TokenType.PRIVATE || currentClass == ClassType.CLASS) return;
-        Gmm.error(name, "Cannot call private method outside class");
+        Gmm.error(expr.name, "Cannot call private method outside class");
     }
 
     // scope helpers

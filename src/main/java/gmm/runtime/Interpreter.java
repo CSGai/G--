@@ -23,9 +23,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         NativeFunctions.functions.forEach(globals::define);
     }
 
-    public void interpret(List<Stmt> statments) {
+    public void interpret(List<Stmt> statements) {
         try {
-            for ( Stmt statement : statments) {
+            for ( Stmt statement : statements ) {
                 execute(statement);
             }
         }
@@ -131,7 +131,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 throw new RuntimeError(expr.operator,"Operands haiav lehiot shney misparim oh machrozet veh mispar");
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
-                if (((Double)right).intValue() == 0) throw new RuntimeError(expr.operator, "ei efshar lehalek be 0");
+                if (((Double)right) == 0) throw new RuntimeError(expr.operator, "ei efshar lehalek be 0");
                 return (double)left / (double)right;
             // comparison
             case LESS: checkNumberOperands(expr.operator, left, right); return (double)left < (double)right;
@@ -298,7 +298,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     // mics checks
     private Boolean equality(Object left, Object right) {
-        if (left == null & right == null) return true;
+        if (left == null && right == null) return true;
         if (left == null) return false;
         return left.equals(right);
     }
@@ -306,7 +306,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return switch (obj) {
             case null -> false;
             case Boolean bool -> bool;
-            case String str -> str.isEmpty();
+            case String str -> !str.isEmpty();
             case Object[] arr when arr.length == 0 -> false;
             default -> true;
         };
@@ -343,7 +343,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 execute(statement);
             };
         }
-        catch (Continue ignored) {}
         finally {
             // flush new current environment once block is finished
             this.environment = previousEnv;
