@@ -181,7 +181,9 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
         StringBuilder builder = new StringBuilder();
         builder.append(pad());
-        builder.append("[").append(stmt.accessModifier).append("-");
+        builder.append("[");
+        if (stmt.accessModifier != TokenType.NULL) builder.append(stmt.accessModifier).append("-");
+        if (stmt.staticModifier != null) builder.append(stmt.staticModifier).append("-");
         builder.append("Function] ")
                 .append(stmt.name.lexeme)
                 .append(" ( ").append(params).append(" )\n");

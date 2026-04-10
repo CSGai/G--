@@ -8,8 +8,14 @@ kita Bagel {
     pumbi classy <- {
         hachzer this::eat() + 10;
     }
+    stati full: food -> {
+        hachzer 55 + food;
+    }
 }
 
 mish bah <- Bagel(5);
-hadpes(bah::eat());
-hadpes(bah::classy);
+// hadpes(bah::eat()); // throws error when uncommented for private scope check
+// hadpes(bah::classy);
+
+hadpes(bah::full(10));
+hadpes(Bagel::full(15));

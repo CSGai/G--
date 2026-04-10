@@ -1,17 +1,22 @@
 package main.java.gmm.runtime.callables;
 
+import main.java.gmm.ast.Token;
+import main.java.gmm.errors.RuntimeError;
 import main.java.gmm.runtime.Interpreter;
 
 import java.util.List;
 import java.util.Map;
 
-public class GmmClass implements GmmCallable{
+public class GmmClass extends GmmInstance implements GmmCallable{
     public final String name;
     private final Map<String, GmmFunction> methods;
 
-    public GmmClass(String name, Map<String, GmmFunction> methods) {
+    public GmmClass(String name, Map<String, GmmFunction> methods, Map<Token, GmmFunction> staticMethods) {
+        super(null);
         this.name = name;
         this.methods = methods;
+        if (staticMethods == null) return;
+        staticMethods.forEach(super::set);
     }
 
     @Override
@@ -21,7 +26,14 @@ public class GmmClass implements GmmCallable{
         if (initializer != null) initializer.bind(instance).call(interpreter, arguments);
         return instance;
     }
+    @Override
+    public Object get(Token name) {
+        if (fields.containsKey(name.lexeme)) return fields.get(name.lexeme);
+        GmmFunction method = findMethod(name.lexeme);
+        if (method != null) return method;
 
+        throw new RuntimeError(name, "Undefined property '" + name.lexeme);
+    }
 
     @Override
     public int arity() {

@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GmmInstance {
-    public final GmmClass kita;
-    private final Map<String, Object> fields = new HashMap<>();
+    private final GmmClass kita;
+    public final Map<String, Object> fields = new HashMap<>();
 
     GmmInstance(GmmClass kita) {
         this.kita = kita;
@@ -24,7 +24,7 @@ public class GmmInstance {
         GmmFunction method = kita.findMethod(name.lexeme);
         if (method != null) return method.bind(this);
 
-        throw new RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
+        throw new RuntimeError(name, "Undefined property '" + name.lexeme);
     }
     public void set(Token name, Object value) {
         fields.put(name.lexeme, value);

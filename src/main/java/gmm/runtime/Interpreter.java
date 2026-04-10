@@ -4,6 +4,7 @@ import main.java.gmm.Gmm;
 import main.java.gmm.ast.Expr;
 import main.java.gmm.ast.Stmt;
 import main.java.gmm.ast.Token;
+import main.java.gmm.ast.TokenType;
 import main.java.gmm.runtime.callables.*;
 import main.java.gmm.runtime.exceptions.Break;
 import main.java.gmm.runtime.exceptions.Continue;
@@ -175,7 +176,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (object instanceof GmmInstance instance) {
             Object field = instance.get(expr.name);
             if (field instanceof GmmFunction method) {
-                if (instance.kita.findMethod(expr.name.lexeme).isGetter) return method.call(this, List.of());
+                if (instance.get(expr.name) instanceof GmmFunction func)
+                    if (func.isGetter) return method.call(this, List.of());
             }
             return field;
         }
@@ -260,11 +262,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         environment.define(stmt.name.lexeme, null);
 
         Map<String, GmmFunction> methods = new HashMap<>();
+        Map<Token, GmmFunction> staticMethods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
+            if (method.staticModifier != null)
+                if (method.staticModifier.type == TokenType.STATIC)
+                    staticMethods.put(method.name, new GmmFunction(method, environment, method.name.lexeme.equals("itchol"), method.isGetter));
+
             methods.put(method.name.lexeme, new GmmFunction(method, environment, method.name.lexeme.equals("itchol"), method.isGetter));
         }
 
-        GmmClass kita = new GmmClass(stmt.name.lexeme, methods);
+        GmmClass kita = new GmmClass(stmt.name.lexeme, methods, staticMethods);
         environment.assign(stmt.name, kita);
         return null;
     }

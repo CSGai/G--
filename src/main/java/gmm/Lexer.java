@@ -46,6 +46,7 @@ class Lexer {
         keywords.put("daleg", CONTINUE);
         keywords.put("prati", PRIVATE);
         keywords.put("pumbi", PUBLIC);
+        keywords.put("stati", STATIC);
     }
 
     List<Token> scanTokens() {
